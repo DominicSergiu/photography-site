@@ -39,12 +39,59 @@
     display:flex;justify-content:space-between;align-items:center;
     padding:var(--pad) var(--pad) 20px;
     flex:none;
+    position:relative;
   }
+  .brand{display:flex;align-items:center;gap:8px;min-width:0;}
   .logo{font-weight:500;}
-  nav{display:flex;gap:20px;}
+  .brand .back{display:flex;align-items:center;color:var(--ink);cursor:pointer;flex:none;background:#f2f2f2;border-radius:8px;padding:6px;transition:background .18s var(--ease);}
+  .brand .back:hover{background:#e6e6e6;}
+  .brand .back svg{width:17px;height:17px;}
+  nav{display:flex;gap:20px;position:relative;}
   nav a{color:var(--muted);cursor:pointer;transition:color .18s var(--ease);}
   nav a:hover, nav a.active{color:var(--ink);}
   .nav-toggle{display:none;background:none;border:none;color:var(--ink);cursor:pointer;}
+
+  .nav-work{position:static;}
+  .work-menu{
+    position:absolute;top:100%;right:0;
+    max-width:calc(100vw - var(--pad) * 2);
+    display:flex;gap:36px;
+    background:var(--bg);
+    padding:26px;
+    border:1px solid #ececec;border-radius:var(--radius);
+    box-shadow:0 8px 24px rgba(0,0,0,0.06);
+    opacity:0;visibility:hidden;
+    transition:opacity .2s var(--ease), visibility 0s linear .2s;
+    z-index:20;
+  }
+  .nav-work:not(.dismissed):hover .work-menu,
+  .nav-work:not(.dismissed):focus-within .work-menu{
+    opacity:1;visibility:visible;transition:opacity .2s var(--ease), visibility 0s;
+  }
+  .work-project{display:flex;flex-direction:column;gap:12px;}
+  .work-project .wp-title{color:var(--muted);white-space:nowrap;transition:color .18s var(--ease);}
+  .work-project:hover .wp-title{color:var(--ink);}
+  .wp-carousel{position:relative;width:180px;}
+  .wp-viewport{overflow:hidden;width:180px;}
+  .wp-track{display:flex;gap:6px;transition:transform .26s var(--ease);}
+  .wp-thumb{flex:none;display:block;}
+  .wp-thumb img{width:56px;height:56px;object-fit:cover;border-radius:6px;display:block;background:#f2f2f2;transition:opacity .18s var(--ease);}
+  .wp-thumb:hover img{opacity:0.85;}
+  .wp-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;padding:0;
+    border:none;border-radius:6px;
+    background:rgba(255,255,255,0.92);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 1px 5px rgba(0,0,0,0.16);
+    opacity:0;transition:opacity .18s var(--ease);z-index:2;
+  }
+  .wp-arrow svg{width:15px;height:15px;}
+  .wp-prev{left:-9px;}
+  .wp-next{right:-9px;}
+  .wp-carousel:hover .wp-arrow{opacity:1;}
+  .wp-carousel:hover .wp-arrow.disabled,
+  .wp-arrow.disabled{opacity:0;pointer-events:none;}
 
   main{flex:1 0 auto;}
 
@@ -65,8 +112,9 @@
     background:#f2f2f2;
     cursor:pointer;
   }
-  .grid img{width:100%;height:auto;display:block;transition:opacity .22s var(--ease);}
-  .grid figure:hover img{opacity:0.88;}
+  .grid img{width:100%;height:auto;display:block;opacity:0;transition:opacity .3s var(--ease);}
+  .grid img.loaded{opacity:1;}
+  .grid figure:hover img.loaded{opacity:0.88;}
   .grid .chip{
     position:absolute;left:10px;bottom:10px;
     background:#fff;color:var(--ink);
@@ -102,15 +150,17 @@
   .lightbox.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
   .lightbox-bar{display:flex;justify-content:space-between;align-items:center;padding:var(--pad);flex:none;}
   .lightbox-bar .cap{color:var(--muted);}
+  .lightbox-bar .cap .lb-project{color:var(--ink);cursor:pointer;transition:opacity .18s var(--ease);}
+  .lightbox-bar .cap .lb-project:hover{opacity:0.55;}
   .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);}
   .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);}
   .lightbox-main .navbtn{
-    flex:none;background:none;border:none;cursor:pointer;color:var(--ink);padding:12px;
+    flex:none;background:#f2f2f2;border:none;border-radius:8px;cursor:pointer;color:var(--ink);padding:6px;
     display:flex;align-items:center;justify-content:center;
-    opacity:0.5;transition:opacity .18s var(--ease);
+    transition:background .18s var(--ease);
   }
-  .lightbox-main .navbtn:hover{opacity:1;}
-  .lightbox-main .navbtn svg{width:22px;height:22px;}
+  .lightbox-main .navbtn:hover{background:#e6e6e6;}
+  .lightbox-main .navbtn svg{width:18px;height:18px;}
   .stage{flex:1;min-width:0;height:100%;position:relative;}
   .stage img{
     position:absolute;inset:0;margin:auto;
@@ -119,7 +169,7 @@
     opacity:0;transition:opacity .3s var(--ease);
   }
   .stage img.visible{opacity:1;}
-  .filmstrip{display:flex;gap:var(--gap);overflow-x:auto;padding:12px var(--pad) 16px;flex:none;}
+  .filmstrip{display:flex;justify-content:safe center;gap:var(--gap);overflow-x:auto;padding:12px var(--pad) 16px;flex:none;}
   .filmstrip img{
     width:56px;height:56px;object-fit:cover;border-radius:6px;
     cursor:pointer;flex:none;opacity:0.35;transition:opacity .18s var(--ease);
@@ -137,6 +187,19 @@
     nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;gap:0;border-bottom:1px solid #ececec;z-index:10;}
     nav.open{display:flex;}
     nav a{padding:14px var(--pad);width:100%;}
+    .nav-work{width:100%;}
+    .work-menu{
+      position:static;opacity:1;visibility:visible;transition:none;
+      flex-direction:column;gap:22px;
+      border:none;box-shadow:none;border-radius:0;
+      padding:4px var(--pad) 16px;
+    }
+    .work-project{flex-direction:column;align-items:stretch;gap:10px;}
+    .wp-carousel{width:auto;}
+    .wp-viewport{width:auto;overflow-x:auto;}
+    .wp-track{transform:none !important;}
+    .wp-arrow{display:none;}
+    .wp-thumb img{width:52px;height:52px;}
     .nav-toggle{display:block;}
     .lightbox-main{flex-direction:column;}
     .lightbox-main .navbtn{display:none;}
@@ -146,7 +209,7 @@
 <body>
 
 <header>
-  <a href="#/" class="logo">Dominic Lucaciu</a>
+  <div class="brand" id="brand"><a href="#/" class="logo">Dominic Lucaciu</a></div>
   <nav id="nav"></nav>
   <button class="nav-toggle" id="navToggle">Menu</button>
 </header>
@@ -192,8 +255,12 @@ let ORDER = [];
 
 const app = document.getElementById('app');
 const navEl = document.getElementById('nav');
+const brandEl = document.getElementById('brand');
 const navToggle = document.getElementById('navToggle');
 navToggle.addEventListener('click', () => navEl.classList.toggle('open'));
+
+const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
+const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
 
 async function loadContent(){
   const manifest = await fetch('content/series.json', { cache:'no-cache' }).then(r => r.json());
@@ -220,8 +287,51 @@ async function loadContent(){
 }
 
 function buildNav(){
-  navEl.innerHTML = ORDER.map(key => `<a href="#/folder/${key}">${FOLDERS[key].title}</a>`).join('')
-    + `<a href="#/about">About</a>`;
+  const projects = ORDER.map(key => {
+    const thumbs = FOLDERS[key].photos
+      .map(p => `<a class="wp-thumb" href="#/project/${key}" tabindex="-1"><img src="${p.src}" alt="" loading="lazy"></a>`)
+      .join('');
+    return `<div class="work-project">
+        <a class="wp-title" href="#/project/${key}">${FOLDERS[key].title}</a>
+        <div class="wp-carousel">
+          <button class="wp-arrow wp-prev" aria-label="Previous previews" tabindex="-1">${CHEVRON_LEFT}</button>
+          <div class="wp-viewport"><div class="wp-track">${thumbs}</div></div>
+          <button class="wp-arrow wp-next" aria-label="More previews" tabindex="-1">${CHEVRON_RIGHT}</button>
+        </div>
+      </div>`;
+  }).join('');
+  navEl.innerHTML = `
+    <div class="nav-work">
+      <a href="#/" class="work-trigger">Work</a>
+      <div class="work-menu">${projects}</div>
+    </div>
+    <a href="#/about">About</a>`;
+
+  const navWork = navEl.querySelector('.nav-work');
+  navWork.addEventListener('click', e => {
+    if(e.target.closest('a[href^="#/project/"]')) navWork.classList.add('dismissed');
+  });
+  navWork.addEventListener('mouseleave', () => navWork.classList.remove('dismissed'));
+  setupCarousels();
+}
+
+function setupCarousels(){
+  const VISIBLE = 3, STEP = 62; // 56px thumb + 6px gap
+  navEl.querySelectorAll('.wp-carousel').forEach(car => {
+    const track = car.querySelector('.wp-track');
+    const prev = car.querySelector('.wp-prev');
+    const next = car.querySelector('.wp-next');
+    const maxIndex = Math.max(0, track.children.length - VISIBLE);
+    let index = 0;
+    const update = () => {
+      track.style.transform = `translateX(${-index * STEP}px)`;
+      prev.classList.toggle('disabled', index <= 0);
+      next.classList.toggle('disabled', index >= maxIndex);
+    };
+    prev.addEventListener('click', e => { e.preventDefault(); index = Math.max(0, index - 1); update(); });
+    next.addEventListener('click', e => { e.preventDefault(); index = Math.min(maxIndex, index + 1); update(); });
+    update();
+  });
 }
 
 function featuredPhotos(){
@@ -243,14 +353,27 @@ function featuredPhotos(){
   return ORDER.flatMap(key => FOLDERS[key].photos.map((p, i) => ({ key, i, p })));
 }
 
+function esc(s){
+  return (s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+// A lightbox sequence is an ordered list of { src, cap, key, title } —
+// key/title identify the project each photo belongs to.
+function homeSequence(){
+  return featuredPhotos().map(({ key, p }) => ({ src: p.src, cap: p.cap, key, title: FOLDERS[key].title }));
+}
+function projectSequence(key){
+  return FOLDERS[key].photos.map(p => ({ src: p.src, cap: p.cap, key, title: FOLDERS[key].title }));
+}
+
 function homeView(){
   const items = featuredPhotos();
   return `
     <div class="grid">
-      ${items.map(({key, i, p}) => `
-        <figure data-folder="${key}" data-index="${i}">
-          <img src="${p.src}" alt="${p.cap}" loading="lazy">
-          <span class="chip">${FOLDERS[key].title}</span>
+      ${items.map(({key, p}, pos) => `
+        <figure data-list="home" data-index="${pos}">
+          <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
+          <span class="chip">${esc(FOLDERS[key].title)}</span>
         </figure>`).join('')}
     </div>`;
 }
@@ -261,9 +384,9 @@ function folderView(key){
   return `
     <div class="grid">
       ${f.photos.map((p, i) => `
-        <figure data-folder="${key}" data-index="${i}">
-          <img src="${p.src}" alt="${p.cap}" loading="lazy">
-          ${p.cap ? `<span class="chip">${p.cap}</span>` : ''}
+        <figure data-list="project" data-key="${key}" data-index="${i}">
+          <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
+          ${p.cap ? `<span class="chip">${esc(p.cap)}</span>` : ''}
         </figure>`).join('')}
     </div>`;
 }
@@ -281,22 +404,41 @@ function aboutView(){
 
 function attachGridHandlers(){
   document.querySelectorAll('.grid figure').forEach(fig => {
-    fig.addEventListener('click', () => openLightbox(fig.dataset.folder, parseInt(fig.dataset.index, 10)));
+    fig.addEventListener('click', () => {
+      const index = parseInt(fig.dataset.index, 10);
+      const list = fig.dataset.list === 'home' ? homeSequence() : projectSequence(fig.dataset.key);
+      openLightbox(list, index);
+    });
+  });
+}
+
+function attachImageFades(){
+  document.querySelectorAll('.grid img').forEach(img => {
+    if(img.complete){ img.classList.add('loaded'); return; }
+    const reveal = () => img.classList.add('loaded');
+    img.addEventListener('load', reveal, { once:true });
+    img.addEventListener('error', reveal, { once:true });
   });
 }
 
 let firstRender = true;
 function render(){
   const hash = location.hash || '#/';
-  const folderMatch = hash.match(/^#\/folder\/([a-z0-9-]+)/);
+  const projectMatch = hash.match(/^#\/project\/([a-z0-9-]+)/);
   document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
 
+  if(projectMatch && FOLDERS[projectMatch[1]]){
+    brandEl.innerHTML = `<a href="#/" class="back" aria-label="Back to home">${CHEVRON_LEFT}</a><span class="logo">${FOLDERS[projectMatch[1]].title}</span>`;
+  } else {
+    brandEl.innerHTML = `<a href="#/" class="logo">Dominic Lucaciu</a>`;
+  }
+
   let html;
-  if(folderMatch){
-    const key = folderMatch[1];
+  if(projectMatch){
+    const key = projectMatch[1];
     html = folderView(key);
-    const link = document.querySelector(`nav a[href="#/folder/${key}"]`);
-    if(link) link.classList.add('active');
+    const trigger = document.querySelector('.work-trigger');
+    if(trigger) trigger.classList.add('active');
   } else if(hash === '#/about'){
     html = aboutView();
     const link = document.querySelector(`nav a[href="#/about"]`);
@@ -308,6 +450,7 @@ function render(){
   const paint = () => {
     app.innerHTML = `<div class="view">${html}</div>`;
     attachGridHandlers();
+    attachImageFades();
     window.scrollTo(0,0);
     requestAnimationFrame(() => {
       const v = app.querySelector('.view');
@@ -331,7 +474,7 @@ const lb = document.getElementById('lightbox');
 const layers = [document.getElementById('lbA'), document.getElementById('lbB')];
 const lbCap = document.getElementById('lbCap');
 const filmstrip = document.getElementById('filmstrip');
-let activeLayer = 0, currentFolder = null, currentIndex = 0, token = 0;
+let activeLayer = 0, lbList = [], currentIndex = 0, token = 0;
 
 function preload(src){
   return new Promise(resolve => {
@@ -342,8 +485,7 @@ function preload(src){
 }
 
 async function showPhoto(index, immediate){
-  const f = FOLDERS[currentFolder];
-  const p = f.photos[index];
+  const p = lbList[index];
   const myToken = ++token;
   await preload(p.src);
   if(myToken !== token) return;
@@ -358,15 +500,16 @@ async function showPhoto(index, immediate){
 
   activeLayer = 1 - activeLayer;
   currentIndex = index;
-  lbCap.textContent = p.cap ? `${f.title} — ${p.cap}` : f.title;
+  lbCap.innerHTML = `<a class="lb-project" href="#/project/${p.key}">${esc(p.title)}</a>${p.cap ? ` — ${esc(p.cap)}` : ''}`;
   filmstrip.querySelectorAll('img').forEach((img, i) => img.classList.toggle('current', i === index));
 
-  preload(f.photos[(index + 1) % f.photos.length].src);
-  preload(f.photos[(index - 1 + f.photos.length) % f.photos.length].src);
+  const n = lbList.length;
+  preload(lbList[(index + 1) % n].src);
+  preload(lbList[(index - 1 + n) % n].src);
 }
 
-function openLightbox(key, index){
-  currentFolder = key;
+function openLightbox(list, index){
+  lbList = list;
   renderFilmstrip(index);
   layers.forEach(l => { l.classList.remove('visible'); l.src = ''; });
   activeLayer = 0;
@@ -379,15 +522,16 @@ function closeLightbox(){
   document.body.style.overflow = '';
 }
 function renderFilmstrip(index){
-  const f = FOLDERS[currentFolder];
-  filmstrip.innerHTML = f.photos.map((p, i) => `<img src="${p.src}" alt="${p.cap}" data-index="${i}" class="${i===index?'current':''}">`).join('');
+  filmstrip.innerHTML = lbList.map((p, i) => `<img src="${p.src}" alt="${esc(p.cap)}" data-index="${i}" class="${i===index?'current':''}">`).join('');
   filmstrip.querySelectorAll('img').forEach(thumb => {
     thumb.addEventListener('click', () => showPhoto(parseInt(thumb.dataset.index, 10)));
   });
 }
-function nextPhoto(){ showPhoto((currentIndex + 1) % FOLDERS[currentFolder].photos.length); }
-function prevPhoto(){ const n = FOLDERS[currentFolder].photos.length; showPhoto((currentIndex - 1 + n) % n); }
+function nextPhoto(){ showPhoto((currentIndex + 1) % lbList.length); }
+function prevPhoto(){ const n = lbList.length; showPhoto((currentIndex - 1 + n) % n); }
 
+// A project link inside the caption closes the lightbox; its href handles navigation.
+lbCap.addEventListener('click', e => { if(e.target.closest('.lb-project')) closeLightbox(); });
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 document.getElementById('lbNext').addEventListener('click', nextPhoto);
 document.getElementById('lbPrev').addEventListener('click', prevPhoto);
