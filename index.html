@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dominic Lucaciu — Photography</title>
+<meta name="description" content="Dominic Lucaciu is a photographer based in London, working across street and portrait photography.">
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dominiclucaciu.com/">
+<meta property="og:title" content="Dominic Lucaciu — Photography">
+<meta property="og:description" content="Dominic Lucaciu is a photographer based in London, working across street and portrait photography.">
+<meta property="og:image" content="https://dominiclucaciu.com/og-image.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dominic Lucaciu — Photography">
+<meta name="twitter:description" content="Dominic Lucaciu is a photographer based in London, working across street and portrait photography.">
+<meta name="twitter:image" content="https://dominiclucaciu.com/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -112,6 +129,8 @@
     background:#f2f2f2;
     cursor:pointer;
   }
+  .grid figure:focus{outline:none;}
+  .grid figure:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
   .grid img{width:100%;height:auto;display:block;opacity:0;transition:opacity .3s var(--ease);}
   .grid img.loaded{opacity:1;}
   .grid figure:hover img.loaded{opacity:0.88;}
@@ -224,7 +243,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" aria-hidden="true">
   <div class="lightbox-bar">
     <span class="cap" id="lbCap"></span>
     <button class="close" id="lbClose">Close</button>
@@ -404,20 +423,48 @@ function aboutView(){
 
 function attachGridHandlers(){
   document.querySelectorAll('.grid figure').forEach(fig => {
-    fig.addEventListener('click', () => {
+    const img = fig.querySelector('img');
+    fig.setAttribute('role', 'button');
+    fig.setAttribute('tabindex', '0');
+    fig.setAttribute('aria-label', img && img.alt ? `Open photo: ${img.alt}` : 'Open photo');
+    const open = () => {
       const index = parseInt(fig.dataset.index, 10);
       const list = fig.dataset.list === 'home' ? homeSequence() : projectSequence(fig.dataset.key);
+      lbReturnFocus = fig;
       openLightbox(list, index);
+    };
+    fig.addEventListener('click', open);
+    fig.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
     });
   });
 }
 
+// Cache each photo's aspect ratio (by src) for the session so the masonry
+// reserves the right space on re-render/navigation and doesn't reflow.
+let arCache = {};
+try { arCache = JSON.parse(sessionStorage.getItem('dl-ar') || '{}'); } catch(e){}
+
 function attachImageFades(){
-  document.querySelectorAll('.grid img').forEach(img => {
-    if(img.complete){ img.classList.add('loaded'); return; }
-    const reveal = () => img.classList.add('loaded');
+  document.querySelectorAll('.grid figure').forEach(fig => {
+    const img = fig.querySelector('img');
+    if(!img) return;
+    const key = img.getAttribute('src');
+    if(arCache[key]) fig.style.aspectRatio = arCache[key];
+    const reveal = () => {
+      img.classList.add('loaded');
+      if(img.naturalWidth && img.naturalHeight){
+        const ar = (img.naturalWidth / img.naturalHeight).toFixed(4);
+        fig.style.aspectRatio = ar;
+        if(arCache[key] !== ar){
+          arCache[key] = ar;
+          try { sessionStorage.setItem('dl-ar', JSON.stringify(arCache)); } catch(e){}
+        }
+      }
+    };
+    if(img.complete && img.naturalWidth){ reveal(); return; }
     img.addEventListener('load', reveal, { once:true });
-    img.addEventListener('error', reveal, { once:true });
+    img.addEventListener('error', () => img.classList.add('loaded'), { once:true });
   });
 }
 
@@ -474,7 +521,7 @@ const lb = document.getElementById('lightbox');
 const layers = [document.getElementById('lbA'), document.getElementById('lbB')];
 const lbCap = document.getElementById('lbCap');
 const filmstrip = document.getElementById('filmstrip');
-let activeLayer = 0, lbList = [], currentIndex = 0, token = 0;
+let activeLayer = 0, lbList = [], currentIndex = 0, token = 0, lbReturnFocus = null;
 
 function preload(src){
   return new Promise(resolve => {
@@ -515,11 +562,15 @@ function openLightbox(list, index){
   activeLayer = 0;
   showPhoto(index, true);
   lb.classList.add('open');
+  lb.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  document.getElementById('lbClose').focus();
 }
 function closeLightbox(){
   lb.classList.remove('open');
+  lb.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  if(lbReturnFocus){ lbReturnFocus.focus(); lbReturnFocus = null; }
 }
 function renderFilmstrip(index){
   filmstrip.innerHTML = lbList.map((p, i) => `<img src="${p.src}" alt="${esc(p.cap)}" data-index="${i}" class="${i===index?'current':''}">`).join('');
@@ -538,9 +589,30 @@ document.getElementById('lbPrev').addEventListener('click', prevPhoto);
 document.addEventListener('keydown', e => {
   if(!lb.classList.contains('open')) return;
   if(e.key === 'Escape') closeLightbox();
-  if(e.key === 'ArrowRight') nextPhoto();
-  if(e.key === 'ArrowLeft') prevPhoto();
+  else if(e.key === 'ArrowRight') nextPhoto();
+  else if(e.key === 'ArrowLeft') prevPhoto();
+  else if(e.key === 'Tab'){
+    const f = lb.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
 });
+
+// Swipe left/right to change photo on touch devices.
+const lbMain = document.querySelector('.lightbox-main');
+let touchX = null, touchY = null;
+lbMain.addEventListener('touchstart', e => {
+  const t = e.changedTouches[0]; touchX = t.clientX; touchY = t.clientY;
+}, { passive: true });
+lbMain.addEventListener('touchend', e => {
+  if(touchX === null) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchX, dy = t.clientY - touchY;
+  if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4){ dx < 0 ? nextPhoto() : prevPhoto(); }
+  touchX = touchY = null;
+}, { passive: true });
 
 /* ---- boot ---- */
 loadContent()

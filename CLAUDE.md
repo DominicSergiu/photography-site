@@ -21,8 +21,17 @@ admin/config.yml        CMS schema — field names here must match the JSON shap
 content/series.json     array of series slugs the site loads, e.g. ["street","travel","portraits"]
 content/series/*.json   one file per series, written by the CMS
 images/                 photos uploaded via the CMS
+favicon.svg             source logo mark (monochrome, rounded-square)
+favicon-16/32.png       raster favicon fallbacks
+apple-touch-icon.png    180px iOS home-screen icon
+og-image.png            600px social-share / link-preview image
 SETUP.md                end-user guide for the GitHub + Netlify + CMS setup
 ```
+
+The PNG icons were rasterized from `favicon.svg` on macOS with no extra tools:
+`qlmanage -t -s 1024 -o <dir> favicon.svg` then `sips -z <n> <n>` to downscale.
+Re-run that if the logo changes. `og-image.png` is the logo on its gradient —
+swap it for a favourite photograph if you'd rather link previews show your work.
 
 ## How content works
 
@@ -119,5 +128,10 @@ local-dev concern; Netlify handles cache correctly per deploy.
 
 ## Known issues / fragilities
 
-- The footer/about **Instagram link points to `https://instagram.com`**, not a
-  real profile.
+- **Secondary text contrast:** `--muted: #8f8f8f` on white is ~2.5:1, below the
+  WCAG AA threshold. Darkening toward `#767676` would fix legibility while keeping
+  the monochrome look — not yet done (flagged, awaiting a design call).
+- **First-load layout shift:** grid figures reserve space from a per-session
+  aspect-ratio cache (`sessionStorage`), so navigation/return visits don't reflow.
+  The very first view of an image still settles once, because the CMS image widget
+  doesn't record dimensions (would need a manual field to fully fix).
