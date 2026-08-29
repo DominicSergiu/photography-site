@@ -38,6 +38,24 @@ SETUP.md                end-user guide for the GitHub + Netlify + CMS setup
 `content/series/<slug>.json`, AND the slug must be added to `content/series.json`.
 Miss the second step and the series won't appear.
 
+Series are surfaced in the UI as **projects** (that's just the label — the data
+is still `content/series/*.json`; the CMS collection is labelled "Projects" but
+its folder is unchanged).
+
+## Navigation, routes & lightbox
+
+- **Nav is `Work` + `About`.** Hovering/focusing `Work` opens a preview panel:
+  one column per project (title + a small thumbnail **carousel** with prev/next
+  arrows). Clicking `Work` goes to the home view-all wall. On mobile the panel
+  expands inside the hamburger menu (arrows hidden, strip swipe-scrolls).
+- **Routes** (hash-based): `#/` home wall · `#/project/<slug>` a project grid ·
+  `#/about`. On a project page the header logo becomes a back arrow + the project
+  title.
+- **Lightbox operates on a "sequence"** (`{src, cap, key, title}[]`), not on a
+  single folder. Clicking a photo on the **home** wall flips through the whole
+  interleaved featured sequence; clicking inside a **project** flips through that
+  project. The caption shows the photo's project as a link into `#/project/<slug>`.
+
 ## Content vs code — where changes belong
 
 - The `content/**` JSON files are **written by the CMS** at dominiclucaciu.com/admin.
@@ -65,6 +83,9 @@ Arrived at over a lot of iteration:
 - **Motion is opacity-only**, 180–300ms, on `cubic-bezier(0.4, 0, 0.2, 1)`
   (`--ease`). No scaling, no sliding, no scroll-triggered reveals. The lightbox
   crossfades between two stacked `<img>` layers so there is never a blank frame.
+  - **One deliberate exception:** the Work-menu thumbnail carousel slides
+    horizontally (`translateX`, 260ms). This was an explicit request; leave it
+    unless asked. (Can be switched to a crossfade to stay strictly opacity-only.)
 - **Copy:** never mention camera gear, film stock, or specific cities other than
   London.
 
@@ -84,22 +105,19 @@ Netlify picks it up from there.
 ## Running locally
 
 `fetch()` of the content JSON needs a server — opening `index.html` over
-`file://` fails. Serve the folder root with anything static, e.g.:
+`file://` fails (browsers block `fetch` on `file://`). Serve the folder root over
+`http://`, e.g.:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open http://localhost:8000. (The site itself suggests `npx serve` in its
-load-error message, but python3 needs nothing installed.)
+Then open http://localhost:8000. **Caching gotcha:** the plain server doesn't
+send no-cache headers, so the browser may keep serving a stale `index.html` and
+your edits won't show — hard-reload (⌘⇧R) or run a no-cache server. Only a
+local-dev concern; Netlify handles cache correctly per deploy.
 
 ## Known issues / fragilities
 
-- **`index.html` grid hover scales the image** (`transform: scale(1.02)`, 0.45s).
-  This contradicts the opacity-only / no-scaling / 180–300ms motion rule above.
-  Flagged, not yet changed.
-- Captions and titles are injected into HTML via template strings without
-  escaping (`alt="${p.cap}"`, chip text). A caption containing `"` or `<` would
-  break markup. Content is CMS-authored so low-risk, but worth knowing.
 - The footer/about **Instagram link points to `https://instagram.com`**, not a
   real profile.
