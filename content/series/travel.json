@@ -1,0 +1,12 @@
+{
+  "title": "Travel",
+  "slug": "travel",
+  "order": 2,
+  "photos": [
+    { "image": "https://picsum.photos/seed/dltravel01/1400/1050", "caption": "Old town", "featured": true },
+    { "image": "https://picsum.photos/seed/dltravel02/1400/1750", "caption": "Park", "featured": true },
+    { "image": "https://picsum.photos/seed/dltravel03/1400/1400", "caption": "City centre", "featured": false },
+    { "image": "https://picsum.photos/seed/dltravel05/1400/1050", "caption": "Harbour", "featured": true },
+    { "image": "https://picsum.photos/seed/dltravel06/1400/1750", "caption": "Hillside", "featured": false }
+  ]
+}

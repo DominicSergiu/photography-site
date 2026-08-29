@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominic Lucaciu — Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --ink:#161616;
+    --muted:#8f8f8f;
+    --radius:8px;
+    --pad:12px;
+    --gap:8px;
+    --ease:cubic-bezier(0.4,0,0.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,sans-serif;
+    font-size:16px;
+    line-height:24px;
+    letter-spacing:0.7px;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+    min-height:100%;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;font-size:16px;letter-spacing:0.7px;}
+  img{display:block;}
+
+  header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:var(--pad) var(--pad) 20px;
+    flex:none;
+  }
+  .logo{font-weight:500;}
+  nav{display:flex;gap:20px;}
+  nav a{color:var(--muted);cursor:pointer;transition:color .18s var(--ease);}
+  nav a:hover, nav a.active{color:var(--ink);}
+  .nav-toggle{display:none;background:none;border:none;color:var(--ink);cursor:pointer;}
+
+  main{flex:1 0 auto;}
+
+  .view{opacity:0;transition:opacity .22s var(--ease);}
+  .view.in{opacity:1;}
+
+  .grid{
+    column-count:3;
+    column-gap:var(--gap);
+    padding:0 var(--pad) 64px;
+  }
+  .grid figure{
+    break-inside:avoid;
+    position:relative;
+    margin:0 0 var(--gap);
+    overflow:hidden;
+    border-radius:var(--radius);
+    background:#f2f2f2;
+    cursor:pointer;
+  }
+  .grid img{width:100%;height:auto;display:block;transition:transform .45s var(--ease);}
+  .grid figure:hover img{transform:scale(1.02);}
+  .grid .chip{
+    position:absolute;left:10px;bottom:10px;
+    background:#fff;color:var(--ink);
+    font-size:14px;line-height:20px;padding:5px 9px;border-radius:8px;
+    opacity:0;transition:opacity .18s var(--ease);
+  }
+  .grid figure:hover .chip{opacity:1;}
+
+  .about{padding:4vh var(--pad) 12vh;max-width:560px;}
+  .about p+p{margin-top:20px;}
+  .about .links{display:flex;gap:24px;margin-top:36px;color:var(--muted);}
+  .about .links a{transition:color .18s var(--ease);}
+  .about .links a:hover{color:var(--ink);}
+
+  .status{padding:4vh var(--pad);color:var(--muted);}
+
+  footer{
+    flex:none;
+    padding:24px var(--pad) 28px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    color:var(--muted);
+  }
+  footer a{transition:color .18s var(--ease);}
+  footer a:hover{color:var(--ink);}
+  footer .cols{display:flex;gap:28px;flex-wrap:wrap;}
+
+  .lightbox{
+    position:fixed;inset:0;background:var(--bg);z-index:200;
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;
+    transition:opacity .22s var(--ease), visibility 0s linear .22s;
+  }
+  .lightbox.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
+  .lightbox-bar{display:flex;justify-content:space-between;align-items:center;padding:var(--pad);flex:none;}
+  .lightbox-bar .cap{color:var(--muted);}
+  .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);}
+  .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);}
+  .lightbox-main .navbtn{
+    flex:none;background:none;border:none;cursor:pointer;color:var(--ink);padding:12px;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0.5;transition:opacity .18s var(--ease);
+  }
+  .lightbox-main .navbtn:hover{opacity:1;}
+  .lightbox-main .navbtn svg{width:22px;height:22px;}
+  .stage{flex:1;min-width:0;height:100%;position:relative;}
+  .stage img{
+    position:absolute;inset:0;margin:auto;
+    max-width:100%;max-height:100%;width:auto;height:auto;
+    object-fit:contain;border-radius:var(--radius);
+    opacity:0;transition:opacity .3s var(--ease);
+  }
+  .stage img.visible{opacity:1;}
+  .filmstrip{display:flex;gap:var(--gap);overflow-x:auto;padding:12px var(--pad) 16px;flex:none;}
+  .filmstrip img{
+    width:56px;height:56px;object-fit:cover;border-radius:6px;
+    cursor:pointer;flex:none;opacity:0.35;transition:opacity .18s var(--ease);
+  }
+  .filmstrip img.current{opacity:1;}
+  .filmstrip img:hover{opacity:0.7;}
+
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+    .view{opacity:1;}
+  }
+  @media(max-width:900px){ .grid{column-count:2;} }
+  @media(max-width:600px){
+    .grid{column-count:1;}
+    nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;gap:0;border-bottom:1px solid #ececec;z-index:10;}
+    nav.open{display:flex;}
+    nav a{padding:14px var(--pad);width:100%;}
+    .nav-toggle{display:block;}
+    .lightbox-main{flex-direction:column;}
+    .lightbox-main .navbtn{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="#/" class="logo">Dominic Lucaciu</a>
+  <nav id="nav"></nav>
+  <button class="nav-toggle" id="navToggle">Menu</button>
+</header>
+
+<main id="app"><div class="status">Loading</div></main>
+
+<footer>
+  <a href="#/">Dominic Lucaciu</a>
+  <div class="cols">
+    <a href="mailto:hello@dominiclucaciu.com">hello@dominiclucaciu.com</a>
+    <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-bar">
+    <span class="cap" id="lbCap"></span>
+    <button class="close" id="lbClose">Close</button>
+  </div>
+  <div class="lightbox-main">
+    <button class="navbtn" id="lbPrev" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="stage" id="stage">
+      <img id="lbA" src="" alt="">
+      <img id="lbB" src="" alt="">
+    </div>
+    <button class="navbtn" id="lbNext" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="filmstrip" id="filmstrip"></div>
+</div>
+
+<script>
+const ABOUT = [
+  "Dominic Lucaciu is a photographer based in London, working across street and portrait photography.",
+  "By day, a product designer. Off the clock, the same instincts go into a viewfinder instead of a screen: noticing structure, waiting for the moment a frame resolves itself, then getting out of the way."
+];
+
+let FOLDERS = {};
+let ORDER = [];
+
+const app = document.getElementById('app');
+const navEl = document.getElementById('nav');
+const navToggle = document.getElementById('navToggle');
+navToggle.addEventListener('click', () => navEl.classList.toggle('open'));
+
+async function loadContent(){
+  const manifest = await fetch('content/series.json', { cache:'no-cache' }).then(r => r.json());
+  const series = await Promise.all(
+    manifest.map(name =>
+      fetch(`content/series/${name}.json`, { cache:'no-cache' })
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
+    )
+  );
+  const valid = series.filter(s => s && Array.isArray(s.photos) && s.photos.length);
+  valid.sort((a,b) => (a.order ?? 99) - (b.order ?? 99));
+
+  FOLDERS = {};
+  ORDER = [];
+  valid.forEach(s => {
+    const key = s.slug;
+    FOLDERS[key] = {
+      title: s.title,
+      photos: s.photos.map(p => ({ src: p.image, cap: p.caption || '', featured: !!p.featured }))
+    };
+    ORDER.push(key);
+  });
+}
+
+function buildNav(){
+  navEl.innerHTML = ORDER.map(key => `<a href="#/folder/${key}">${FOLDERS[key].title}</a>`).join('')
+    + `<a href="#/about">About</a>`;
+}
+
+function featuredPhotos(){
+  const buckets = ORDER.map(key =>
+    FOLDERS[key].photos
+      .map((p, i) => ({ key, i, p }))
+      .filter(x => x.p.featured)
+  );
+  const out = [];
+  let round = 0, added = true;
+  while(added){
+    added = false;
+    buckets.forEach(b => {
+      if(b[round]){ out.push(b[round]); added = true; }
+    });
+    round++;
+  }
+  if(out.length) return out;
+  return ORDER.flatMap(key => FOLDERS[key].photos.map((p, i) => ({ key, i, p })));
+}
+
+function homeView(){
+  const items = featuredPhotos();
+  return `
+    <div class="grid">
+      ${items.map(({key, i, p}) => `
+        <figure data-folder="${key}" data-index="${i}">
+          <img src="${p.src}" alt="${p.cap}" loading="lazy">
+          <span class="chip">${FOLDERS[key].title}</span>
+        </figure>`).join('')}
+    </div>`;
+}
+
+function folderView(key){
+  const f = FOLDERS[key];
+  if(!f){ return `<div class="status">Series not found</div>`; }
+  return `
+    <div class="grid">
+      ${f.photos.map((p, i) => `
+        <figure data-folder="${key}" data-index="${i}">
+          <img src="${p.src}" alt="${p.cap}" loading="lazy">
+          ${p.cap ? `<span class="chip">${p.cap}</span>` : ''}
+        </figure>`).join('')}
+    </div>`;
+}
+
+function aboutView(){
+  return `
+    <div class="about">
+      ${ABOUT.map(p => `<p>${p}</p>`).join('')}
+      <div class="links">
+        <a href="mailto:hello@dominiclucaciu.com">hello@dominiclucaciu.com</a>
+        <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>`;
+}
+
+function attachGridHandlers(){
+  document.querySelectorAll('.grid figure').forEach(fig => {
+    fig.addEventListener('click', () => openLightbox(fig.dataset.folder, parseInt(fig.dataset.index, 10)));
+  });
+}
+
+let firstRender = true;
+function render(){
+  const hash = location.hash || '#/';
+  const folderMatch = hash.match(/^#\/folder\/([a-z0-9-]+)/);
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+
+  let html;
+  if(folderMatch){
+    const key = folderMatch[1];
+    html = folderView(key);
+    const link = document.querySelector(`nav a[href="#/folder/${key}"]`);
+    if(link) link.classList.add('active');
+  } else if(hash === '#/about'){
+    html = aboutView();
+    const link = document.querySelector(`nav a[href="#/about"]`);
+    if(link) link.classList.add('active');
+  } else {
+    html = homeView();
+  }
+
+  const paint = () => {
+    app.innerHTML = `<div class="view">${html}</div>`;
+    attachGridHandlers();
+    window.scrollTo(0,0);
+    requestAnimationFrame(() => {
+      const v = app.querySelector('.view');
+      if(v) v.classList.add('in');
+    });
+  };
+
+  const existing = app.querySelector('.view');
+  if(existing && !firstRender){
+    existing.classList.remove('in');
+    setTimeout(paint, 160);
+  } else {
+    paint();
+  }
+  firstRender = false;
+  navEl.classList.remove('open');
+}
+
+/* ---- Lightbox ---- */
+const lb = document.getElementById('lightbox');
+const layers = [document.getElementById('lbA'), document.getElementById('lbB')];
+const lbCap = document.getElementById('lbCap');
+const filmstrip = document.getElementById('filmstrip');
+let activeLayer = 0, currentFolder = null, currentIndex = 0, token = 0;
+
+function preload(src){
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+async function showPhoto(index, immediate){
+  const f = FOLDERS[currentFolder];
+  const p = f.photos[index];
+  const myToken = ++token;
+  await preload(p.src);
+  if(myToken !== token) return;
+
+  const incoming = layers[1 - activeLayer];
+  const outgoing = layers[activeLayer];
+  incoming.src = p.src;
+  incoming.alt = p.cap;
+
+  const swap = () => { incoming.classList.add('visible'); outgoing.classList.remove('visible'); };
+  immediate ? swap() : requestAnimationFrame(swap);
+
+  activeLayer = 1 - activeLayer;
+  currentIndex = index;
+  lbCap.textContent = p.cap ? `${f.title} — ${p.cap}` : f.title;
+  filmstrip.querySelectorAll('img').forEach((img, i) => img.classList.toggle('current', i === index));
+
+  preload(f.photos[(index + 1) % f.photos.length].src);
+  preload(f.photos[(index - 1 + f.photos.length) % f.photos.length].src);
+}
+
+function openLightbox(key, index){
+  currentFolder = key;
+  renderFilmstrip(index);
+  layers.forEach(l => { l.classList.remove('visible'); l.src = ''; });
+  activeLayer = 0;
+  showPhoto(index, true);
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function renderFilmstrip(index){
+  const f = FOLDERS[currentFolder];
+  filmstrip.innerHTML = f.photos.map((p, i) => `<img src="${p.src}" alt="${p.cap}" data-index="${i}" class="${i===index?'current':''}">`).join('');
+  filmstrip.querySelectorAll('img').forEach(thumb => {
+    thumb.addEventListener('click', () => showPhoto(parseInt(thumb.dataset.index, 10)));
+  });
+}
+function nextPhoto(){ showPhoto((currentIndex + 1) % FOLDERS[currentFolder].photos.length); }
+function prevPhoto(){ const n = FOLDERS[currentFolder].photos.length; showPhoto((currentIndex - 1 + n) % n); }
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbNext').addEventListener('click', nextPhoto);
+document.getElementById('lbPrev').addEventListener('click', prevPhoto);
+document.addEventListener('keydown', e => {
+  if(!lb.classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowRight') nextPhoto();
+  if(e.key === 'ArrowLeft') prevPhoto();
+});
+
+/* ---- boot ---- */
+loadContent()
+  .then(() => {
+    buildNav();
+    window.addEventListener('hashchange', render);
+    render();
+  })
+  .catch(() => {
+    app.innerHTML = `<div class="status">Couldn't load the photo series. If you're opening this file directly, run a local server instead: <code>npx serve</code></div>`;
+  });
+</script>
+
+</body>
+</html>
