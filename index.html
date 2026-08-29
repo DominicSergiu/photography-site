@@ -206,21 +206,22 @@
     nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;gap:0;border-bottom:1px solid #ececec;z-index:10;}
     nav.open{display:flex;}
     nav a{padding:14px var(--pad);width:100%;}
+    /* Mobile menu: a plain list — projects nested under Work, no previews */
     .nav-work{width:100%;}
     .work-menu{
       position:static;opacity:1;visibility:visible;transition:none;
-      flex-direction:column;gap:22px;
-      border:none;box-shadow:none;border-radius:0;
-      padding:4px var(--pad) 16px;
+      display:block;
+      border:none;box-shadow:none;border-radius:0;padding:0;
     }
-    .work-project{flex-direction:column;align-items:stretch;gap:10px;}
-    .wp-carousel{width:auto;}
-    .wp-viewport{width:auto;overflow-x:auto;}
-    .wp-track{transform:none !important;}
-    .wp-arrow{display:none;}
-    .wp-thumb img{width:52px;height:52px;}
+    .work-project{display:block;}
+    .wp-carousel{display:none;}
+    .work-project .wp-title,
+    .work-project:hover .wp-title{
+      display:block;width:100%;white-space:normal;color:var(--muted);
+      padding:12px var(--pad) 12px calc(var(--pad) + 18px);
+    }
     .nav-toggle{display:block;}
-    .lightbox-main{flex-direction:column;}
+    .lightbox-main{flex-direction:column;align-items:stretch;}
     .lightbox-main .navbtn{display:none;}
   }
 </style>
@@ -414,10 +415,6 @@ function aboutView(){
   return `
     <div class="about">
       ${ABOUT.map(p => `<p>${p}</p>`).join('')}
-      <div class="links">
-        <a href="mailto:lucaciu.dominic@gmail.com">lucaciu.dominic@gmail.com</a>
-        <a href="https://www.instagram.com/dominic_lucaciu/" target="_blank" rel="noopener">Instagram</a>
-      </div>
     </div>`;
 }
 
