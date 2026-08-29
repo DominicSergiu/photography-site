@@ -3,11 +3,35 @@
   "slug": "street",
   "order": 1,
   "photos": [
-    { "image": "https://picsum.photos/seed/dlstreet01/1400/1750", "caption": "Hackney", "featured": true },
-    { "image": "https://picsum.photos/seed/dlstreet02/1400/1050", "caption": "Dalston", "featured": true },
-    { "image": "https://picsum.photos/seed/dlstreet03/1400/1750", "caption": "Broadway Market", "featured": false },
-    { "image": "https://picsum.photos/seed/dlstreet05/1400/1750", "caption": "Bethnal Green", "featured": true },
-    { "image": "https://picsum.photos/seed/dlstreet07/1400/1750", "caption": "Shoreditch", "featured": true },
-    { "image": "https://picsum.photos/seed/dlstreet08/1400/1050", "caption": "London Fields", "featured": false }
+    {
+      "image": "/images/Tottenham Court Road.JPG",
+      "caption": "Hackney",
+      "featured": true
+    },
+    {
+      "image": "https://picsum.photos/seed/dlstreet02/1400/1050",
+      "caption": "Dalston",
+      "featured": true
+    },
+    {
+      "image": "https://picsum.photos/seed/dlstreet03/1400/1750",
+      "caption": "Broadway Market",
+      "featured": false
+    },
+    {
+      "image": "https://picsum.photos/seed/dlstreet05/1400/1750",
+      "caption": "Bethnal Green",
+      "featured": true
+    },
+    {
+      "image": "https://picsum.photos/seed/dlstreet07/1400/1750",
+      "caption": "Shoreditch",
+      "featured": true
+    },
+    {
+      "image": "https://picsum.photos/seed/dlstreet08/1400/1050",
+      "caption": "London Fields",
+      "featured": false
+    }
   ]
 }
