@@ -122,6 +122,11 @@
       "image": "/images/ppR0008943.jpg",
       "caption": "City of London",
       "featured": false
+    },
+    {
+      "image": "/images/ppR0008268.jpg",
+      "caption": "Stratford",
+      "featured": true
     }
   ]
 }
