@@ -110,8 +110,13 @@
     },
     {
       "image": "/images/ppL1008102.jpg",
-      "caption": "London",
+      "caption": "Wales",
       "featured": true
+    },
+    {
+      "image": "/images/ppL1009739.jpg",
+      "caption": "Paris",
+      "featured": false
     }
   ]
 }
