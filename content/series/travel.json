@@ -52,6 +52,11 @@
       "image": "/images/000001870007 2.JPG",
       "caption": "Transylvania — my mom's dog",
       "featured": true
+    },
+    {
+      "image": "/images/A7S08038.JPG",
+      "caption": "Transylvania — Toader",
+      "featured": false
     }
   ]
 }
