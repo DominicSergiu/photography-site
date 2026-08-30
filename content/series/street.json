@@ -150,7 +150,12 @@
     },
     {
       "image": "/images/ppR0006417.jpg",
-      "caption": "",
+      "caption": "London",
+      "featured": false
+    },
+    {
+      "image": "/images/ppR0003922.jpg",
+      "caption": "London",
       "featured": false
     }
   ]
