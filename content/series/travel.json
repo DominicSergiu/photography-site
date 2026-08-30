@@ -4,28 +4,28 @@
   "order": 2,
   "photos": [
     {
-      "image": "https://picsum.photos/seed/dltravel01/1400/1050",
-      "caption": "Old town",
+      "image": "/images/000077840008.PNG",
+      "caption": "Negreni Fair",
       "featured": true
     },
     {
-      "image": "https://picsum.photos/seed/dltravel02/1400/1750",
-      "caption": "Park",
+      "image": "/images/000077810017.PNG",
+      "caption": "Pots sellers",
       "featured": true
     },
     {
-      "image": "https://picsum.photos/seed/dltravel03/1400/1400",
-      "caption": "City centre",
-      "featured": false
-    },
-    {
-      "image": "https://picsum.photos/seed/dltravel05/1400/1050",
-      "caption": "Harbour",
+      "image": "/images/000077840028 2.PNG",
+      "caption": "Hut",
       "featured": true
     },
     {
-      "image": "https://picsum.photos/seed/dltravel06/1400/1750",
-      "caption": "Hillside",
+      "image": "/images/000077810037.PNG",
+      "caption": "Mirror",
+      "featured": true
+    },
+    {
+      "image": "/images/000077810037.PNG",
+      "caption": "",
       "featured": false
     }
   ]
