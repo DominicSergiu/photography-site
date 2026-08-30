@@ -52,6 +52,11 @@
       "image": "/images/R1-05504-0019.jpg",
       "caption": "Bucharest",
       "featured": false
+    },
+    {
+      "image": "/images/L1009548.jpg",
+      "caption": "Paris",
+      "featured": true
     }
   ]
 }
