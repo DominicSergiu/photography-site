@@ -20,6 +20,7 @@ admin/index.html        Sveltia CMS entry point (loads from unpkg)
 admin/config.yml        CMS schema — field names here must match the JSON shape
 content/series.json     array of series slugs the site loads, e.g. ["street","travel","portraits"]
 content/series/*.json   one file per series, written by the CMS
+content/about.json      About-page photo + bio, edited via the CMS "Pages" collection
 images/                 photos uploaded via the CMS
 favicon.svg             source logo mark (monochrome, rounded-square)
 favicon-16/32.png       raster favicon fallbacks
@@ -50,6 +51,11 @@ Miss the second step and the series won't appear.
 Series are surfaced in the UI as **projects** (that's just the label — the data
 is still `content/series/*.json`; the CMS collection is labelled "Projects" but
 its folder is unchanged).
+
+The **About page** is CMS-managed too: `content/about.json` holds `image` (photo)
+and `bio` (paragraphs separated by blank lines), edited via the "Pages → About"
+file collection. `index.html` fetches it at load and falls back to the hardcoded
+`ABOUT` array / no photo if the file is missing or a field is empty.
 
 ## Navigation, routes & lightbox
 
