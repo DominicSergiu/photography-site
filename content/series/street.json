@@ -57,6 +57,11 @@
       "image": "/images/L1009548.jpg",
       "caption": "Paris",
       "featured": true
+    },
+    {
+      "image": "/images/L1006770.jpg",
+      "caption": "Athens",
+      "featured": false
     }
   ]
 }
