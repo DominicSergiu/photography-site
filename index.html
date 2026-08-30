@@ -153,12 +153,15 @@
   footer{
     flex:none;
     padding:24px var(--pad) 28px;
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
     color:var(--muted);
   }
   footer a{transition:color .18s var(--ease);}
   footer a:hover{color:var(--ink);}
-  footer .cols{display:flex;gap:28px;flex-wrap:wrap;}
+  .foot-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .to-top{background:none;border:none;padding:0;cursor:pointer;color:var(--muted);display:flex;align-items:center;transition:color .18s var(--ease);}
+  .to-top:hover{color:var(--ink);}
+  .to-top svg{width:18px;height:18px;}
 
   .lightbox{
     position:fixed;inset:0;background:var(--bg);z-index:200;
@@ -242,11 +245,13 @@
 <main id="app"><div class="status">Loading</div></main>
 
 <footer>
-  <a href="#/">Dominic Lucaciu</a>
-  <div class="cols">
+  <div class="foot-left">
+    <button class="to-top" id="toTop" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+    </button>
     <a href="mailto:lucaciu.dominic@gmail.com">lucaciu.dominic@gmail.com</a>
-    <a href="https://www.instagram.com/dominic_lucaciu/" target="_blank" rel="noopener">Instagram</a>
   </div>
+  <a href="https://www.instagram.com/dominic_lucaciu/" target="_blank" rel="noopener">Instagram</a>
 </footer>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" aria-hidden="true">
@@ -284,6 +289,8 @@ const navEl = document.getElementById('nav');
 const brandEl = document.getElementById('brand');
 const navToggle = document.getElementById('navToggle');
 navToggle.addEventListener('click', () => navEl.classList.toggle('open'));
+
+document.getElementById('toTop').addEventListener('click', () => window.scrollTo(0, 0));
 
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
