@@ -42,6 +42,11 @@
       "image": "/images/R0002801.jpg",
       "caption": "Sheep",
       "featured": true
+    },
+    {
+      "image": "/images/R0000690-2.jpg",
+      "caption": "Train station",
+      "featured": false
     }
   ]
 }
