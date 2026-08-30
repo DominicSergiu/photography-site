@@ -42,6 +42,11 @@
       "image": "/images/0005850-R1-21-22.jpg",
       "caption": "Barcelona",
       "featured": false
+    },
+    {
+      "image": "/images/0008172-R1-09-10.jpg",
+      "caption": "Columbia Flower Market",
+      "featured": true
     }
   ]
 }
