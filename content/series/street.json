@@ -77,6 +77,11 @@
       "image": "/images/L1007192 2.jpg",
       "caption": "Athens",
       "featured": false
+    },
+    {
+      "image": "/images/L1003326.jpg",
+      "caption": "London",
+      "featured": false
     }
   ]
 }
