@@ -91,6 +91,11 @@
     {
       "image": "/images/ppL1000530.jpg",
       "caption": "London",
+      "featured": true
+    },
+    {
+      "image": "/images/ppL1006504.jpg",
+      "caption": "London",
       "featured": false
     }
   ]
