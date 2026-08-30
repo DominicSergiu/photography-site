@@ -36,6 +36,11 @@
     {
       "image": "/images/img20250302_21404066.jpg",
       "caption": "Horses",
+      "featured": true
+    },
+    {
+      "image": "/images/0005850-R1-21-22.jpg",
+      "caption": "Barcelona",
       "featured": false
     }
   ]
