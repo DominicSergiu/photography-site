@@ -25,14 +25,14 @@ images/                 photos uploaded via the CMS
 favicon.svg             source logo mark (monochrome, rounded-square)
 favicon-16/32.png       raster favicon fallbacks
 apple-touch-icon.png    180px iOS home-screen icon
-og-image.png            600px social-share / link-preview image
 SETUP.md                end-user guide for the GitHub + Netlify + CMS setup
 ```
 
 The PNG icons were rasterized from `favicon.svg` on macOS with no extra tools:
 `qlmanage -t -s 1024 -o <dir> favicon.svg` then `sips -z <n> <n>` to downscale.
-Re-run that if the logo changes. `og-image.png` is the logo on its gradient —
-swap it for a favourite photograph if you'd rather link previews show your work.
+Re-run that if the logo changes. The social-share image (`og:image`/`twitter:image`
+in `<head>`) points at the **About-page photo**; those tags are static HTML, so if
+the About photo changes in the CMS the URL must be updated in `index.html` by hand.
 
 ## How content works
 
