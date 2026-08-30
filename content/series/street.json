@@ -142,6 +142,11 @@
       "image": "/images/ppL1003437.jpg",
       "caption": "London",
       "featured": false
+    },
+    {
+      "image": "/images/ppL1003911.jpg",
+      "caption": "London",
+      "featured": true
     }
   ]
 }
