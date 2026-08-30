@@ -67,6 +67,11 @@
       "image": "/images/img20260125_21312860.jpg",
       "caption": "London",
       "featured": true
+    },
+    {
+      "image": "/images/R0011480.jpg",
+      "caption": "Peckham",
+      "featured": false
     }
   ]
 }
