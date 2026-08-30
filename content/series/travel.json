@@ -37,6 +37,11 @@
       "image": "/images/L1000657.jpg",
       "caption": "Negreni Fair seller",
       "featured": false
+    },
+    {
+      "image": "/images/R0002801.jpg",
+      "caption": "Sheep",
+      "featured": true
     }
   ]
 }
