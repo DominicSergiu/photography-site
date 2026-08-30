@@ -46,7 +46,7 @@
     {
       "image": "/images/0008172-R1-09-10.jpg",
       "caption": "Columbia Flower Market",
-      "featured": true
+      "featured": false
     },
     {
       "image": "/images/R1-05504-0019.jpg",
@@ -100,6 +100,11 @@
     },
     {
       "image": "/images/ppA7S09573.jpg",
+      "caption": "London",
+      "featured": false
+    },
+    {
+      "image": "/images/ppL1003556.jpg",
       "caption": "London",
       "featured": false
     }
