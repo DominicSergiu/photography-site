@@ -171,7 +171,7 @@
   .lightbox-bar .cap .lb-project{color:var(--ink);cursor:pointer;transition:opacity .18s var(--ease);}
   .lightbox-bar .cap .lb-project:hover{opacity:0.55;}
   .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);}
-  .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);}
+  .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);overflow:hidden;touch-action:none;}
   .lightbox-main .navbtn{
     flex:none;background:#f2f2f2;border:none;border-radius:8px;cursor:pointer;color:var(--ink);padding:6px;
     display:flex;align-items:center;justify-content:center;
@@ -179,7 +179,7 @@
   }
   .lightbox-main .navbtn:hover{background:#e6e6e6;}
   .lightbox-main .navbtn svg{width:18px;height:18px;}
-  .stage{flex:1;min-width:0;height:100%;position:relative;}
+  .stage{flex:1;min-width:0;height:100%;position:relative;transform-origin:0 0;}
   .stage img{
     position:absolute;inset:0;margin:auto;
     max-width:100%;max-height:100%;width:auto;height:auto;
@@ -545,6 +545,7 @@ function preload(src){
 }
 
 async function showPhoto(index, immediate){
+  resetZoom();
   const p = lbList[index];
   const myToken = ++token;
   await preload(p.src);
@@ -580,6 +581,7 @@ function openLightbox(list, index){
   document.getElementById('lbClose').focus();
 }
 function closeLightbox(){
+  resetZoom();
   lb.classList.remove('open');
   lb.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
@@ -613,19 +615,119 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Swipe left/right to change photo on touch devices.
+/* ---- Touch: swipe to change photo (when not zoomed); pinch & double-tap to zoom ---- */
 const lbMain = document.querySelector('.lightbox-main');
-let touchX = null, touchY = null;
+const stageEl = document.getElementById('stage');
+let zScale = 1, zTx = 0, zTy = 0, lastTap = 0, gesture = null;
+
+function resetZoom(){
+  zScale = 1; zTx = 0; zTy = 0;
+  stageEl.style.transition = '';
+  stageEl.style.transform = '';
+}
+function applyZoom(){
+  stageEl.style.transform = (zScale === 1 && !zTx && !zTy)
+    ? '' : `translate(${zTx}px, ${zTy}px) scale(${zScale})`;
+}
+function zoomed(){ return zScale > 1.01; }
+function touchDist(a, b){ return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY); }
+
+// Rendered (contain-fit) size of the current photo inside the stage box.
+function stageBox(){
+  const W = stageEl.clientWidth, H = stageEl.clientHeight;
+  const img = stageEl.querySelector('img.visible') || stageEl.querySelector('img');
+  let iw = W, ih = H;
+  if(img && img.naturalWidth && img.naturalHeight){
+    const arI = img.naturalWidth / img.naturalHeight, arS = W / H;
+    if(arI > arS){ iw = W; ih = W / arI; } else { ih = H; iw = H * arI; }
+  }
+  return { W, H, iw, ih, ox: (W - iw) / 2, oy: (H - ih) / 2 };
+}
+// Keep the photo covering the viewport where it can, otherwise centre it.
+function clampTranslate(){
+  const m = stageBox();
+  zTx = (m.iw * zScale >= m.W)
+    ? Math.min(-m.ox * zScale, Math.max(m.W - (m.ox + m.iw) * zScale, zTx))
+    : m.W / 2 - (m.ox + m.iw / 2) * zScale;
+  zTy = (m.ih * zScale >= m.H)
+    ? Math.min(-m.oy * zScale, Math.max(m.H - (m.oy + m.ih) * zScale, zTy))
+    : m.H / 2 - (m.oy + m.ih / 2) * zScale;
+}
+function doubleTapZoom(cx, cy){
+  stageEl.style.transition = 'transform .2s var(--ease)';
+  if(zoomed()){ zScale = 1; zTx = 0; zTy = 0; }
+  else {
+    const r = stageEl.getBoundingClientRect();
+    const Lx = r.left - zTx, Ly = r.top - zTy;
+    const lx = (cx - r.left) / zScale, ly = (cy - r.top) / zScale;
+    zScale = 2.5;
+    zTx = cx - Lx - lx * zScale;
+    zTy = cy - Ly - ly * zScale;
+    clampTranslate();
+  }
+  applyZoom();
+}
+
 lbMain.addEventListener('touchstart', e => {
-  const t = e.changedTouches[0]; touchX = t.clientX; touchY = t.clientY;
-}, { passive: true });
+  stageEl.style.transition = '';
+  if(e.touches.length === 2){
+    const [a, b] = e.touches;
+    const r = stageEl.getBoundingClientRect();
+    const mx = (a.clientX + b.clientX) / 2, my = (a.clientY + b.clientY) / 2;
+    gesture = { mode: 'pinch', startDist: touchDist(a, b), startScale: zScale,
+      Lx: r.left - zTx, Ly: r.top - zTy, lx: (mx - r.left) / zScale, ly: (my - r.top) / zScale };
+  } else if(e.touches.length === 1){
+    const t = e.touches[0], now = Date.now();
+    if(now - lastTap < 300){
+      lastTap = 0; e.preventDefault();
+      doubleTapZoom(t.clientX, t.clientY);
+      gesture = { mode: 'tapped' };
+    } else {
+      lastTap = now;
+      gesture = zoomed()
+        ? { mode: 'pan', x: t.clientX, y: t.clientY, tx: zTx, ty: zTy }
+        : { mode: 'swipe', x: t.clientX, y: t.clientY };
+    }
+  }
+}, { passive: false });
+
+lbMain.addEventListener('touchmove', e => {
+  if(!gesture) return;
+  if(gesture.mode === 'pinch' && e.touches.length === 2){
+    e.preventDefault();
+    const [a, b] = e.touches;
+    zScale = Math.min(4, Math.max(1, gesture.startScale * (touchDist(a, b) / gesture.startDist)));
+    const mx = (a.clientX + b.clientX) / 2, my = (a.clientY + b.clientY) / 2;
+    zTx = mx - gesture.Lx - gesture.lx * zScale;
+    zTy = my - gesture.Ly - gesture.ly * zScale;
+    clampTranslate();
+    applyZoom();
+  } else if(gesture.mode === 'pan' && e.touches.length === 1){
+    e.preventDefault();
+    const t = e.touches[0];
+    zTx = gesture.tx + (t.clientX - gesture.x);
+    zTy = gesture.ty + (t.clientY - gesture.y);
+    clampTranslate();
+    applyZoom();
+  }
+}, { passive: false });
+
 lbMain.addEventListener('touchend', e => {
-  if(touchX === null) return;
-  const t = e.changedTouches[0];
-  const dx = t.clientX - touchX, dy = t.clientY - touchY;
-  if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4){ dx < 0 ? nextPhoto() : prevPhoto(); }
-  touchX = touchY = null;
-}, { passive: true });
+  if(gesture && gesture.mode === 'swipe' && e.changedTouches.length){
+    const t = e.changedTouches[0];
+    const dx = t.clientX - gesture.x, dy = t.clientY - gesture.y;
+    if(!zoomed() && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4){ dx < 0 ? nextPhoto() : prevPhoto(); }
+  }
+  if(gesture && gesture.mode === 'pinch' && !zoomed()){
+    stageEl.style.transition = 'transform .2s var(--ease)';
+    zScale = 1; zTx = 0; zTy = 0; applyZoom();
+  }
+  if(e.touches.length === 0){ gesture = null; }
+  else if(e.touches.length === 1 && zoomed()){
+    const t = e.touches[0];
+    gesture = { mode: 'pan', x: t.clientX, y: t.clientY, tx: zTx, ty: zTy };
+  }
+}, { passive: false });
 
 /* ---- boot ---- */
 loadContent()
