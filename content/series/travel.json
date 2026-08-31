@@ -77,6 +77,11 @@
       "image": "/images/000077810037.jpg",
       "caption": "Transylvania — Mirror",
       "featured": true
+    },
+    {
+      "image": "/images/000077830010.jpg",
+      "caption": "Transylvania — Train ride",
+      "featured": false
     }
   ]
 }
