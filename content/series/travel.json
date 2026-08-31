@@ -72,6 +72,11 @@
       "image": "/images/000077810028.jpg",
       "caption": "Transylvania — Seller",
       "featured": false
+    },
+    {
+      "image": "/images/000077810037.jpg",
+      "caption": "Transylvania — Mirror",
+      "featured": true
     }
   ]
 }
