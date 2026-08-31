@@ -167,6 +167,11 @@
       "image": "/images/0000638-R1-12-13-3.jpg",
       "caption": "London",
       "featured": true
+    },
+    {
+      "image": "/images/0000835-R1-32-33.jpg",
+      "caption": "London",
+      "featured": false
     }
   ]
 }
