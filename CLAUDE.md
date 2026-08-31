@@ -98,9 +98,10 @@ Arrived at over a lot of iteration:
 - **Motion is opacity-only**, 180–300ms, on `cubic-bezier(0.4, 0, 0.2, 1)`
   (`--ease`). No scaling, no sliding, no scroll-triggered reveals. The lightbox
   crossfades between two stacked `<img>` layers so there is never a blank frame.
-  - **One deliberate exception:** the Work-menu thumbnail carousel slides
-    horizontally (`translateX`, 260ms). This was an explicit request; leave it
-    unless asked. (Can be switched to a crossfade to stay strictly opacity-only.)
+  - **Deliberate exceptions (leave them — both explicitly requested):** the
+    Work-menu thumbnail carousel slides horizontally (`translateX`, 260ms; can be
+    a crossfade instead); and the mobile lightbox has **pinch / double-tap / pan
+    zoom** (`transform: scale` on `.stage`), which is user-driven, not decorative.
 - **Copy:** never mention camera gear, film stock, or specific cities other than
   London.
 
