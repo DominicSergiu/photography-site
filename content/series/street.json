@@ -197,6 +197,11 @@
       "image": "/images/R0007833.jpg",
       "caption": "Barcelona",
       "featured": true
+    },
+    {
+      "image": "/images/L1003513.jpg",
+      "caption": "London",
+      "featured": false
     }
   ]
 }
