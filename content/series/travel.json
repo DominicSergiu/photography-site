@@ -55,7 +55,7 @@
     },
     {
       "image": "/images/ppL1001721.jpg",
-      "caption": "Transylvania — Flower seller",
+      "caption": "Transylvania — Flower sellers",
       "featured": false
     },
     {
@@ -66,6 +66,11 @@
     {
       "image": "/images/000077810024.jpg",
       "caption": "Transylvania — Rolex",
+      "featured": false
+    },
+    {
+      "image": "/images/000077810028.jpg",
+      "caption": "Transylvania — Seller",
       "featured": false
     }
   ]
