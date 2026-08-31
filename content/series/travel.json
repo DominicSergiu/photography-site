@@ -62,6 +62,11 @@
       "image": "/images/A7S08038.jpg",
       "caption": "Transylvania — Toader",
       "featured": true
+    },
+    {
+      "image": "/images/000077810024.jpg",
+      "caption": "Transylvania — Rolex",
+      "featured": false
     }
   ]
 }
