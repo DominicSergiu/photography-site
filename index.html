@@ -68,6 +68,7 @@
   nav a{color:var(--muted);cursor:pointer;transition:color .18s var(--ease);}
   nav a:hover, nav a.active{color:var(--ink);}
   .nav-toggle{display:none;background:none;border:none;color:var(--ink);cursor:pointer;}
+  .mmenu{display:none;}
 
   .nav-work{position:static;}
   .work-menu{
@@ -218,24 +219,21 @@
     .about-photo{order:-1;flex:none;width:100%;margin-bottom:28px;}
   }
   @media(max-width:600px){
-    nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;gap:0;border-bottom:1px solid #ececec;z-index:10;}
-    nav.open{display:flex;}
-    nav a{padding:14px var(--pad);width:100%;}
-    /* Mobile menu: a plain list — projects nested under Work, no previews */
-    .nav-work{width:100%;}
-    .work-menu{
-      position:static;opacity:1;visibility:visible;transition:none;
-      display:block;
-      border:none;box-shadow:none;border-radius:0;padding:0;
-    }
-    .work-project{display:block;}
-    .wp-carousel{display:none;}
-    .work-project .wp-title,
-    .work-project:hover .wp-title{
-      display:block;width:100%;white-space:normal;color:var(--muted);
-      padding:12px var(--pad) 12px calc(var(--pad) + 18px);
-    }
+    #nav{display:none;}
     .nav-toggle{display:block;}
+    /* Mobile menu: a full-screen white sheet that fades in over the page */
+    .mmenu{
+      display:flex;flex-direction:column;position:fixed;inset:0;z-index:150;background:var(--bg);
+      opacity:0;visibility:hidden;transition:opacity .22s var(--ease), visibility 0s linear .22s;
+    }
+    .mmenu.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
+    .mm-top{display:flex;justify-content:space-between;align-items:center;padding:var(--pad) var(--pad) 20px;flex:none;}
+    .mm-close{background:none;border:none;color:var(--ink);cursor:pointer;}
+    .mm-list{flex:1;display:flex;flex-direction:column;gap:0;padding:8px 0;overflow-y:auto;}
+    .mm-list a{padding:10px var(--pad);color:var(--muted);transition:color .18s var(--ease);}
+    .mm-list a.current{color:var(--ink);}
+    .mm-list a.mm-sep{margin-top:24px;}
+    .mm-foot{display:flex;justify-content:space-between;padding:24px var(--pad) 28px;color:var(--muted);flex:none;}
     .lightbox-main{flex-direction:column;align-items:stretch;}
     .lightbox-main .navbtn{display:none;}
   }
@@ -246,8 +244,20 @@
 <header>
   <div class="brand" id="brand"><a href="#/" class="logo">Dominic Lucaciu</a></div>
   <nav id="nav"><div class="nav-work"><a href="#/" class="work-trigger">Work</a></div><a href="#/about">About</a></nav>
-  <button class="nav-toggle" id="navToggle" aria-controls="nav" aria-expanded="false">Menu</button>
+  <button class="nav-toggle" id="navToggle" aria-controls="mmenu" aria-expanded="false">Menu</button>
 </header>
+
+<div class="mmenu" id="mmenu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
+  <div class="mm-top">
+    <div class="brand" id="mmBrand"><a href="#/" class="logo">Dominic Lucaciu</a></div>
+    <button class="mm-close" id="mmClose">Close</button>
+  </div>
+  <nav class="mm-list" id="mmList" aria-label="Site"></nav>
+  <div class="mm-foot">
+    <a href="mailto:lucaciu.dominic@gmail.com">Email</a>
+    <a href="https://www.instagram.com/dominic_lucaciu/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</div>
 
 <main id="app"></main>
 
@@ -292,11 +302,38 @@ const app = document.getElementById('app');
 const navEl = document.getElementById('nav');
 const brandEl = document.getElementById('brand');
 const navToggle = document.getElementById('navToggle');
-function setMenuOpen(open){
-  navEl.classList.toggle('open', open);
-  navToggle.setAttribute('aria-expanded', String(open));
+// Mobile menu: a full-screen sheet. Its top row mirrors the header (brand + Close in
+// the Menu button's spot) and the current page is marked in ink.
+const mmenu = document.getElementById('mmenu');
+const mmList = document.getElementById('mmList');
+const mmClose = document.getElementById('mmClose');
+function syncMobileMenu(){
+  document.getElementById('mmBrand').innerHTML = brandEl.innerHTML;
+  const route = location.hash || '#/';
+  mmList.querySelectorAll('a').forEach(a => a.classList.toggle('current', a.dataset.route === route));
 }
-navToggle.addEventListener('click', () => setMenuOpen(!navEl.classList.contains('open')));
+function setMenuOpen(open){
+  const wasOpen = mmenu.classList.contains('open');
+  if(open) syncMobileMenu();
+  mmenu.classList.toggle('open', open);
+  mmenu.setAttribute('aria-hidden', String(!open));
+  navToggle.setAttribute('aria-expanded', String(open));
+  if(open !== wasOpen) document.body.style.overflow = open ? 'hidden' : '';
+  if(open) mmClose.focus();
+}
+navToggle.addEventListener('click', () => setMenuOpen(true));
+mmClose.addEventListener('click', () => { setMenuOpen(false); navToggle.focus(); });
+mmenu.addEventListener('click', e => { if(e.target.closest('a[href^="#"]')) setMenuOpen(false); });
+matchMedia('(min-width: 601px)').addEventListener('change', e => { if(e.matches) setMenuOpen(false); });
+
+// Keep Tab focus inside an open dialog (mobile menu or lightbox).
+function trapFocus(e, root){
+  const f = root.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+  if(!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+}
 
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
@@ -403,6 +440,10 @@ function buildNav(){
       <div class="work-menu">${projects}</div>
     </div>
     <a href="#/about">About</a>`;
+
+  mmList.innerHTML = `<a href="#/" data-route="#/">All work</a>`
+    + ORDER.map(key => `<a href="#/project/${key}" data-route="#/project/${key}">${esc(FOLDERS[key].title)}</a>`).join('')
+    + `<a href="#/about" data-route="#/about" class="mm-sep">About</a>`;
 
   const navWork = navEl.querySelector('.nav-work');
   navWork.addEventListener('click', e => {
@@ -730,19 +771,16 @@ document.getElementById('lbNext').addEventListener('click', nextPhoto);
 document.getElementById('lbPrev').addEventListener('click', prevPhoto);
 document.addEventListener('keydown', e => {
   if(!lb.classList.contains('open')){
-    if(e.key === 'Escape' && navEl.classList.contains('open')){ setMenuOpen(false); navToggle.focus(); }
+    if(mmenu.classList.contains('open')){
+      if(e.key === 'Escape'){ setMenuOpen(false); navToggle.focus(); }
+      else if(e.key === 'Tab') trapFocus(e, mmenu);
+    }
     return;
   }
   if(e.key === 'Escape') closeLightbox();
   else if(e.key === 'ArrowRight') nextPhoto();
   else if(e.key === 'ArrowLeft') prevPhoto();
-  else if(e.key === 'Tab'){
-    const f = lb.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
-    if(!f.length) return;
-    const first = f[0], last = f[f.length - 1];
-    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
-    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
-  }
+  else if(e.key === 'Tab') trapFocus(e, lb);
 });
 
 /* ---- Touch: swipe to change photo (when not zoomed); pinch & double-tap to zoom ---- */

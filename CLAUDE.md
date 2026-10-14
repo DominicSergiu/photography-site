@@ -62,8 +62,12 @@ file collection. `index.html` fetches it at load and falls back to the hardcoded
 
 - **Nav is `Work` + `About`.** Hovering/focusing `Work` opens a preview panel:
   one column per project (title + a small thumbnail **carousel** with prev/next
-  arrows). Clicking `Work` goes to the home view-all wall. On mobile the panel
-  expands inside the hamburger menu (arrows hidden, strip swipe-scrolls).
+  arrows). Clicking `Work` goes to the home view-all wall.
+- **Mobile (≤600px):** the header nav is hidden; "Menu" opens `#mmenu`, a
+  full-screen white sheet (opacity fade, scroll locked, focus trapped) listing
+  All work / each project / About, with Email + Instagram at the bottom. Its top
+  row mirrors the header so "Close" sits where "Menu" was. The current page is
+  in ink, the rest muted. Built in `buildNav()`; desktop is unaffected.
 - **Routes** (hash-based): `#/` home wall · `#/project/<slug>` a project grid ·
   `#/about`. On a project page the header logo becomes a back arrow + the project
   title.
