@@ -128,6 +128,13 @@ Image CDN (`/.netlify/images`) for the same reason: it spends credits per
 transformation. Photos are optimized in place instead (≤2000px, JPEG q80) —
 newly uploaded CMS photos arrive full-size and need the same pass.
 
+**After new photos are uploaded, in one commit:** (1) optimize them in place
+(`sips -Z 2000 -s format jpeg -s formatOptions 80 <file> --out <file>`, only for
+files over 2000px or ~900KB, keeping filenames), then (2) regenerate
+`content/dims.json` from every `image` referenced in `content/series/*.json`
+and `content/about.json`, using `sips -g pixelWidth -g pixelHeight` for each,
+written as `{"/images/x.jpg":[w,h],…}`.
+
 ## Running locally
 
 `fetch()` of the content JSON needs a server — opening `index.html` over
@@ -148,7 +155,8 @@ local-dev concern; Netlify handles cache correctly per deploy.
 - **Secondary text contrast:** `--muted: #8f8f8f` on white is ~2.5:1, below the
   WCAG AA threshold. Darkening toward `#767676` would fix legibility while keeping
   the monochrome look — not yet done (flagged, awaiting a design call).
-- **First-load layout shift:** grid figures reserve space from a per-session
-  aspect-ratio cache (`sessionStorage`), so navigation/return visits don't reflow.
-  The very first view of an image still settles once, because the CMS image widget
-  doesn't record dimensions (would need a manual field to fully fix).
+- **Layout stability depends on `content/dims.json`.** It maps each photo path
+  to `[width, height]` so grid cells (and the About photo) get their exact
+  aspect ratio before the image downloads — no jumping. The CMS doesn't know
+  about this file; a newly uploaded photo missing from it still works but
+  settles once on first view. Regenerate it whenever photos change.

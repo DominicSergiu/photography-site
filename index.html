@@ -236,11 +236,11 @@
 
 <header>
   <div class="brand" id="brand"><a href="#/" class="logo">Dominic Lucaciu</a></div>
-  <nav id="nav"></nav>
+  <nav id="nav"><div class="nav-work"><a href="#/" class="work-trigger">Work</a></div><a href="#/about">About</a></nav>
   <button class="nav-toggle" id="navToggle" aria-controls="nav" aria-expanded="false">Menu</button>
 </header>
 
-<main id="app"><div class="status">Loading</div></main>
+<main id="app"></main>
 
 <footer>
   <a href="mailto:lucaciu.dominic@gmail.com">Email</a>
@@ -276,6 +276,7 @@ const ABOUT = [
 let FOLDERS = {};
 let ORDER = [];
 let ABOUT_DATA = null;
+let DIMS = {};
 
 const app = document.getElementById('app');
 const navEl = document.getElementById('nav');
@@ -313,9 +314,21 @@ async function loadContent(){
     ORDER.push(key);
   });
 
-  ABOUT_DATA = await fetch('content/about.json', { cache:'no-cache' })
-    .then(r => r.ok ? r.json() : null)
-    .catch(() => null);
+  [ABOUT_DATA, DIMS] = await Promise.all([
+    fetch('content/about.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch('content/dims.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+  ]);
+}
+
+// Known shape of a photo (from content/dims.json, else this session's cache) so
+// the layout can reserve its space before it downloads instead of jumping.
+function ratioOf(src){
+  const d = DIMS && DIMS[src];
+  return d ? `${d[0]} / ${d[1]}` : (arCache[src] || '');
+}
+function sizeAttrs(src){
+  const d = DIMS && DIMS[src];
+  return d ? `width="${d[0]}" height="${d[1]}"` : '';
 }
 
 function buildNav(){
@@ -415,8 +428,8 @@ function homeView(){
   return `
     <div class="grid">
       ${items.map(({key, p}, pos) => `
-        <figure data-list="home" data-index="${pos}">
-          <img src="${p.src}" alt="${esc(p.cap)}" ${loadAttrs(pos)}>
+        <figure data-list="home" data-index="${pos}" style="aspect-ratio:${ratioOf(p.src)}">
+          <img src="${p.src}" alt="${esc(p.cap)}" ${sizeAttrs(p.src)} ${loadAttrs(pos)}>
           <span class="chip">${esc(FOLDERS[key].title)}</span>
         </figure>`).join('')}
     </div>`;
@@ -428,8 +441,8 @@ function folderView(key){
   return `
     <div class="grid">
       ${f.photos.map((p, i) => `
-        <figure data-list="project" data-key="${key}" data-index="${i}">
-          <img src="${p.src}" alt="${esc(p.cap)}" ${loadAttrs(i)}>
+        <figure data-list="project" data-key="${key}" data-index="${i}" style="aspect-ratio:${ratioOf(p.src)}">
+          <img src="${p.src}" alt="${esc(p.cap)}" ${sizeAttrs(p.src)} ${loadAttrs(i)}>
           ${p.cap ? `<span class="chip">${esc(p.cap)}</span>` : ''}
         </figure>`).join('')}
     </div>`;
@@ -441,7 +454,7 @@ function aboutView(){
     ? data.bio.split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
     : ABOUT;
   const photo = data.image
-    ? `<img class="about-photo" src="${data.image}" alt="Dominic Lucaciu" fetchpriority="high" decoding="async">`
+    ? `<img class="about-photo" src="${data.image}" alt="Dominic Lucaciu" ${sizeAttrs(data.image)} style="aspect-ratio:${ratioOf(data.image)}" fetchpriority="high" decoding="async">`
     : '';
   return `
     <div class="about">
