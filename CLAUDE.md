@@ -71,6 +71,8 @@ file collection. `index.html` fetches it at load and falls back to the hardcoded
   single folder. Clicking a photo on the **home** wall flips through the whole
   interleaved featured sequence; clicking inside a **project** flips through that
   project. The caption shows the photo's project as a link into `#/project/<slug>`.
+  On touch, a single tap on the photo fades the caption and filmstrip out
+  (`.chrome-off`, opacity only); another tap brings them back.
 
 ## Content vs code — where changes belong
 
@@ -94,8 +96,11 @@ Arrived at over a lot of iteration:
 - **12px padding** from the viewport edge, everywhere, including the header — the
   nav aligns with the content. (`--pad: 12px`)
 - **8px** border radius on images, **8px** gaps in the grid. (`--radius`, `--gap`)
-- **Three-column masonry** via CSS `column-count`: 3 columns, → 2 under 900px,
-  → 1 under 600px. Photos keep their own aspect ratio.
+- **Three-column masonry, row order:** 3 columns, → 2 at ≤900px, → 1 at ≤600px.
+  Photos keep their own aspect ratio. `layoutGrid()` absolutely positions each
+  photo into the currently shortest column, left to right, so the CMS order
+  reads across rows (CSS `column-count` was dropped because it read down
+  columns). DOM order stays the photo order for keyboard/screen readers.
 - **Motion is opacity-only**, 180–300ms, on `cubic-bezier(0.4, 0, 0.2, 1)`
   (`--ease`). No scaling, no sliding, no scroll-triggered reveals. The lightbox
   crossfades between two stacked `<img>` layers so there is never a blank frame.
