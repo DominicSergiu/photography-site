@@ -49,8 +49,9 @@ the About photo changes in the CMS the URL must be updated in `index.html` by ha
 Miss the second step and the series won't appear.
 
 Series are surfaced in the UI as **projects** (that's just the label — the data
-is still `content/series/*.json`; the CMS collection is labelled "Projects" but
-its folder is unchanged).
+is still `content/series/*.json`, and the CMS collection is still labelled
+"Series"). The site keys each series by its `slug` field, not its filename:
+`content/series/travel.json` is the **Documentary** series (`slug: documentary`).
 
 The **About page** is CMS-managed too: `content/about.json` holds `image` (photo)
 and `bio` (paragraphs separated by blank lines), edited via the "Pages → About"
@@ -117,6 +118,15 @@ When asked for a change:
 3. Commit with a clear message and push to `main`.
 
 Netlify picks it up from there.
+
+**Netlify bills in credits** (since 2026): free = 1,000 credits/month, Pro =
+3,000 for $20. Builds, bandwidth, web requests and image transformations all
+spend credits, and exceeding the allowance suspends the site. **Every push to
+`main` is a build** (so is every CMS Publish), so batch related changes into a
+single commit/push — never push a series of small commits. Avoid Netlify's
+Image CDN (`/.netlify/images`) for the same reason: it spends credits per
+transformation. Photos are optimized in place instead (≤2000px, JPEG q80) —
+newly uploaded CMS photos arrive full-size and need the same pass.
 
 ## Running locally
 

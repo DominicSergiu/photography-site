@@ -22,6 +22,7 @@
 <meta name="twitter:image" content="https://dominiclucaciu.com/images/Dominic%20Lucaciu-41.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -167,11 +168,11 @@
     transition:opacity .22s var(--ease), visibility 0s linear .22s;
   }
   .lightbox.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
-  .lightbox-bar{display:flex;justify-content:space-between;align-items:center;padding:var(--pad);flex:none;}
-  .lightbox-bar .cap{color:var(--muted);}
+  .lightbox-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:var(--pad);flex:none;}
+  .lightbox-bar .cap{color:var(--muted);min-width:0;}
   .lightbox-bar .cap .lb-project{color:var(--ink);cursor:pointer;transition:opacity .18s var(--ease);}
   .lightbox-bar .cap .lb-project:hover{opacity:0.55;}
-  .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);}
+  .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);flex:none;}
   .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);overflow:hidden;touch-action:none;}
   .lightbox-main .navbtn{
     flex:none;background:#f2f2f2;border:none;border-radius:8px;cursor:pointer;color:var(--ink);padding:6px;
@@ -236,7 +237,7 @@
 <header>
   <div class="brand" id="brand"><a href="#/" class="logo">Dominic Lucaciu</a></div>
   <nav id="nav"></nav>
-  <button class="nav-toggle" id="navToggle">Menu</button>
+  <button class="nav-toggle" id="navToggle" aria-controls="nav" aria-expanded="false">Menu</button>
 </header>
 
 <main id="app"><div class="status">Loading</div></main>
@@ -280,7 +281,11 @@ const app = document.getElementById('app');
 const navEl = document.getElementById('nav');
 const brandEl = document.getElementById('brand');
 const navToggle = document.getElementById('navToggle');
-navToggle.addEventListener('click', () => navEl.classList.toggle('open'));
+function setMenuOpen(open){
+  navEl.classList.toggle('open', open);
+  navToggle.setAttribute('aria-expanded', String(open));
+}
+navToggle.addEventListener('click', () => setMenuOpen(!navEl.classList.contains('open')));
 
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
@@ -316,10 +321,10 @@ async function loadContent(){
 function buildNav(){
   const projects = ORDER.map(key => {
     const thumbs = FOLDERS[key].photos
-      .map(p => `<a class="wp-thumb" href="#/project/${key}" tabindex="-1"><img src="${p.src}" alt="" loading="lazy"></a>`)
+      .map(p => `<a class="wp-thumb" href="#/project/${key}" tabindex="-1"><img data-src="${p.src}" alt="" loading="lazy" decoding="async"></a>`)
       .join('');
     return `<div class="work-project">
-        <a class="wp-title" href="#/project/${key}">${FOLDERS[key].title}</a>
+        <a class="wp-title" href="#/project/${key}">${esc(FOLDERS[key].title)}</a>
         <div class="wp-carousel">
           <button class="wp-arrow wp-prev" aria-label="Previous previews" tabindex="-1">${CHEVRON_LEFT}</button>
           <div class="wp-viewport"><div class="wp-track">${thumbs}</div></div>
@@ -339,6 +344,13 @@ function buildNav(){
     if(e.target.closest('a[href^="#/project/"]')) navWork.classList.add('dismissed');
   });
   navWork.addEventListener('mouseleave', () => navWork.classList.remove('dismissed'));
+
+  // Preview thumbnails are full-size photos — only fetch them once the menu is opened.
+  const hydrate = () => navWork.querySelectorAll('img[data-src]').forEach(img => {
+    img.src = img.dataset.src; img.removeAttribute('data-src');
+  });
+  navWork.addEventListener('mouseenter', hydrate, { once: true });
+  navWork.addEventListener('focusin', hydrate, { once: true });
   setupCarousels();
 }
 
@@ -393,13 +405,18 @@ function projectSequence(key){
   return FOLDERS[key].photos.map(p => ({ src: p.src, cap: p.cap, key, title: FOLDERS[key].title }));
 }
 
+// The first photo on a page is the likely LCP element — fetch it eagerly at high priority.
+function loadAttrs(i){
+  return i === 0 ? 'loading="eager" fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
+}
+
 function homeView(){
   const items = featuredPhotos();
   return `
     <div class="grid">
       ${items.map(({key, p}, pos) => `
         <figure data-list="home" data-index="${pos}">
-          <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
+          <img src="${p.src}" alt="${esc(p.cap)}" ${loadAttrs(pos)}>
           <span class="chip">${esc(FOLDERS[key].title)}</span>
         </figure>`).join('')}
     </div>`;
@@ -412,7 +429,7 @@ function folderView(key){
     <div class="grid">
       ${f.photos.map((p, i) => `
         <figure data-list="project" data-key="${key}" data-index="${i}">
-          <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
+          <img src="${p.src}" alt="${esc(p.cap)}" ${loadAttrs(i)}>
           ${p.cap ? `<span class="chip">${esc(p.cap)}</span>` : ''}
         </figure>`).join('')}
     </div>`;
@@ -424,7 +441,7 @@ function aboutView(){
     ? data.bio.split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
     : ABOUT;
   const photo = data.image
-    ? `<img class="about-photo" src="${data.image}" alt="Dominic Lucaciu" loading="lazy">`
+    ? `<img class="about-photo" src="${data.image}" alt="Dominic Lucaciu" fetchpriority="high" decoding="async">`
     : '';
   return `
     <div class="about">
@@ -489,9 +506,12 @@ function render(){
   document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
 
   if(projectMatch && FOLDERS[projectMatch[1]]){
-    brandEl.innerHTML = `<a href="#/" class="back" aria-label="Back to home">${CHEVRON_LEFT}</a><span class="logo">${FOLDERS[projectMatch[1]].title}</span>`;
+    const title = FOLDERS[projectMatch[1]].title;
+    brandEl.innerHTML = `<a href="#/" class="back" aria-label="Back to home">${CHEVRON_LEFT}</a><span class="logo">${esc(title)}</span>`;
+    document.title = `${title} — Dominic Lucaciu`;
   } else {
     brandEl.innerHTML = `<a href="#/" class="logo">Dominic Lucaciu</a>`;
+    document.title = hash === '#/about' ? 'About — Dominic Lucaciu' : 'Dominic Lucaciu — Photography';
   }
 
   let html;
@@ -527,7 +547,7 @@ function render(){
     paint();
   }
   firstRender = false;
-  navEl.classList.remove('open');
+  setMenuOpen(false);
 }
 
 /* ---- Lightbox ---- */
@@ -564,6 +584,8 @@ async function showPhoto(index, immediate){
   currentIndex = index;
   lbCap.innerHTML = `<a class="lb-project" href="#/project/${p.key}">${esc(p.title)}</a>${p.cap ? ` — ${esc(p.cap)}` : ''}`;
   filmstrip.querySelectorAll('img').forEach((img, i) => img.classList.toggle('current', i === index));
+  const thumb = filmstrip.children[index];
+  if(thumb) thumb.scrollIntoView({ block: 'nearest', inline: 'center' });
 
   const n = lbList.length;
   preload(lbList[(index + 1) % n].src);
@@ -589,7 +611,7 @@ function closeLightbox(){
   if(lbReturnFocus){ lbReturnFocus.focus(); lbReturnFocus = null; }
 }
 function renderFilmstrip(index){
-  filmstrip.innerHTML = lbList.map((p, i) => `<img src="${p.src}" alt="${esc(p.cap)}" data-index="${i}" class="${i===index?'current':''}">`).join('');
+  filmstrip.innerHTML = lbList.map((p, i) => `<img src="${p.src}" alt="${esc(p.cap)}" data-index="${i}" class="${i===index?'current':''}" loading="lazy" decoding="async">`).join('');
   filmstrip.querySelectorAll('img').forEach(thumb => {
     thumb.addEventListener('click', () => showPhoto(parseInt(thumb.dataset.index, 10)));
   });
@@ -603,7 +625,10 @@ document.getElementById('lbClose').addEventListener('click', closeLightbox);
 document.getElementById('lbNext').addEventListener('click', nextPhoto);
 document.getElementById('lbPrev').addEventListener('click', prevPhoto);
 document.addEventListener('keydown', e => {
-  if(!lb.classList.contains('open')) return;
+  if(!lb.classList.contains('open')){
+    if(e.key === 'Escape' && navEl.classList.contains('open')){ setMenuOpen(false); navToggle.focus(); }
+    return;
+  }
   if(e.key === 'Escape') closeLightbox();
   else if(e.key === 'ArrowRight') nextPhoto();
   else if(e.key === 'ArrowLeft') prevPhoto();
