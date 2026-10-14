@@ -189,16 +189,22 @@
     opacity:0;transition:opacity .3s var(--ease);
   }
   .stage img.visible{opacity:1;}
+  .stage-ph{position:absolute;inset:0;margin:auto;border-radius:var(--radius);background:#f2f2f2;opacity:0;transition:opacity .2s var(--ease);pointer-events:none;}
+  .stage-ph.on{opacity:1;}
+
+  /* Loading state: placeholders softly pulse between two greys until the photo arrives */
+  @keyframes ph-pulse{0%,100%{background-color:#efefef}50%{background-color:#f8f8f8}}
+  .pulsing{animation:ph-pulse 1.6s var(--ease) infinite;}
   .filmstrip{display:flex;justify-content:safe center;gap:var(--gap);overflow-x:auto;padding:12px var(--pad) 16px;flex:none;}
   .filmstrip img{
-    width:56px;height:56px;object-fit:cover;border-radius:6px;
+    width:56px;height:56px;object-fit:cover;border-radius:6px;background:#f2f2f2;
     cursor:pointer;flex:none;opacity:0.35;transition:opacity .18s var(--ease);
   }
   .filmstrip img.current{opacity:1;}
   .filmstrip img:hover{opacity:0.7;}
 
   @media(prefers-reduced-motion:reduce){
-    *{transition:none !important;}
+    *{transition:none !important;animation:none !important;}
     .view{opacity:1;}
   }
   @media(max-width:900px){ .grid{column-count:2;} }
@@ -257,6 +263,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
     <div class="stage" id="stage">
+      <div class="stage-ph" id="stagePh"></div>
       <img id="lbA" src="" alt="">
       <img id="lbB" src="" alt="">
     </div>
@@ -361,6 +368,7 @@ function buildNav(){
   // Preview thumbnails are full-size photos — only fetch them once the menu is opened.
   const hydrate = () => navWork.querySelectorAll('img[data-src]').forEach(img => {
     img.src = img.dataset.src; img.removeAttribute('data-src');
+    pulseUntilLoaded(img);
   });
   navWork.addEventListener('mouseenter', hydrate, { once: true });
   navWork.addEventListener('focusin', hydrate, { once: true });
@@ -489,10 +497,22 @@ function attachGridHandlers(){
 let arCache = {};
 try { arCache = JSON.parse(sessionStorage.getItem('dl-ar') || '{}'); } catch(e){}
 
+// Pulse a placeholder (the image itself, or its container) until the image has loaded.
+function pulseUntilLoaded(img, el = img){
+  if(img.complete && img.naturalWidth) return;
+  el.classList.add('pulsing');
+  const stop = () => el.classList.remove('pulsing');
+  img.addEventListener('load', stop, { once: true });
+  img.addEventListener('error', stop, { once: true });
+}
+
 function attachImageFades(){
+  const about = document.querySelector('.about-photo');
+  if(about) pulseUntilLoaded(about);
   document.querySelectorAll('.grid figure').forEach(fig => {
     const img = fig.querySelector('img');
     if(!img) return;
+    pulseUntilLoaded(img, fig);
     const key = img.getAttribute('src');
     if(arCache[key]) fig.style.aspectRatio = arCache[key];
     const reveal = () => {
@@ -568,7 +588,23 @@ const lb = document.getElementById('lightbox');
 const layers = [document.getElementById('lbA'), document.getElementById('lbB')];
 const lbCap = document.getElementById('lbCap');
 const filmstrip = document.getElementById('filmstrip');
+const stagePh = document.getElementById('stagePh');
 let activeLayer = 0, lbList = [], currentIndex = 0, token = 0, lbReturnFocus = null;
+
+// On first open the stage is empty until the photo downloads; show a pulsing
+// placeholder in the photo's contain-fit shape (skipped if it's already cached).
+function showStagePlaceholder(src){
+  const probe = new Image(); probe.src = src;
+  if(probe.complete) return;
+  const d = (DIMS && DIMS[src]) || [3, 2];
+  const W = stageEl.clientWidth, H = stageEl.clientHeight;
+  if(!W || !H) return;
+  const s = Math.min(W / d[0], H / d[1]);
+  stagePh.style.width = Math.round(d[0] * s) + 'px';
+  stagePh.style.height = Math.round(d[1] * s) + 'px';
+  stagePh.classList.add('on', 'pulsing');
+}
+function hideStagePlaceholder(){ stagePh.classList.remove('on', 'pulsing'); }
 
 function preload(src){
   return new Promise(resolve => {
@@ -592,6 +628,7 @@ async function showPhoto(index, immediate){
 
   const swap = () => { incoming.classList.add('visible'); outgoing.classList.remove('visible'); };
   immediate ? swap() : requestAnimationFrame(swap);
+  hideStagePlaceholder();
 
   activeLayer = 1 - activeLayer;
   currentIndex = index;
@@ -610,6 +647,7 @@ function openLightbox(list, index){
   renderFilmstrip(index);
   layers.forEach(l => { l.classList.remove('visible'); l.src = ''; });
   activeLayer = 0;
+  showStagePlaceholder(list[index].src);
   showPhoto(index, true);
   lb.classList.add('open');
   lb.setAttribute('aria-hidden', 'false');
@@ -618,6 +656,7 @@ function openLightbox(list, index){
 }
 function closeLightbox(){
   resetZoom();
+  hideStagePlaceholder();
   lb.classList.remove('open');
   lb.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
@@ -626,6 +665,7 @@ function closeLightbox(){
 function renderFilmstrip(index){
   filmstrip.innerHTML = lbList.map((p, i) => `<img src="${p.src}" alt="${esc(p.cap)}" data-index="${i}" class="${i===index?'current':''}" loading="lazy" decoding="async">`).join('');
   filmstrip.querySelectorAll('img').forEach(thumb => {
+    pulseUntilLoaded(thumb);
     thumb.addEventListener('click', () => showPhoto(parseInt(thumb.dataset.index, 10)));
   });
 }

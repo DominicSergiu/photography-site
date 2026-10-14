@@ -103,6 +103,9 @@ Arrived at over a lot of iteration:
     Work-menu thumbnail carousel slides horizontally (`translateX`, 260ms; can be
     a crossfade instead); and the mobile lightbox has **pinch / double-tap / pan
     zoom** (`transform: scale` on `.stage`), which is user-driven, not decorative.
+  - **Loading state:** image placeholders softly pulse between two greys
+    (`.pulsing`, a `background-color` keyframe — no movement) until the photo
+    loads, then the photo fades in over them. Disabled under reduced motion.
 - **Copy:** never mention camera gear, film stock, or specific cities other than
   London.
 
