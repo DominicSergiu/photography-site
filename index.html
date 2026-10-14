@@ -168,8 +168,9 @@
     transition:opacity .22s var(--ease), visibility 0s linear .22s;
   }
   .lightbox.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
-  .lightbox-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:var(--pad);flex:none;}
-  .lightbox-bar .cap{color:var(--muted);min-width:0;}
+  /* Fixed two-line height so a wrapping caption never moves or resizes the photo */
+  .lightbox-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:var(--pad);flex:none;height:calc(var(--pad) * 2 + 48px);}
+  .lightbox-bar .cap{color:var(--muted);min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;}
   .lightbox-bar .cap .lb-project{color:var(--ink);cursor:pointer;transition:opacity .18s var(--ease);}
   .lightbox-bar .cap .lb-project:hover{opacity:0.55;}
   .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);flex:none;}
