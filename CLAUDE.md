@@ -65,7 +65,7 @@ file collection. `index.html` fetches it at load and falls back to the hardcoded
   arrows). Clicking `Work` goes to the home view-all wall.
 - **Mobile (≤600px):** the header nav is hidden; "Menu" opens `#mmenu`, a
   full-screen white sheet (opacity fade, scroll locked, focus trapped) listing
-  All work / each project / About, with Email + Instagram at the bottom. Its top
+  Home / each project / About, with Email + Instagram at the bottom. Its top
   row mirrors the header so "Close" sits where "Menu" was. The current page is
   in ink, the rest muted. Built in `buildNav()`; desktop is unaffected.
 - **Routes** (hash-based): `#/` home wall · `#/project/<slug>` a project grid ·

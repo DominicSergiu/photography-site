@@ -441,7 +441,7 @@ function buildNav(){
     </div>
     <a href="#/about">About</a>`;
 
-  mmList.innerHTML = `<a href="#/" data-route="#/">All work</a>`
+  mmList.innerHTML = `<a href="#/" data-route="#/">Home</a>`
     + ORDER.map(key => `<a href="#/project/${key}" data-route="#/project/${key}">${esc(FOLDERS[key].title)}</a>`).join('')
     + `<a href="#/about" data-route="#/about" class="mm-sep">About</a>`;
 
