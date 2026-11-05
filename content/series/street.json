@@ -214,9 +214,19 @@
       "featured": false
     },
     {
+      "image": "/images/0002920-R1-03-3.jpg",
+      "caption": "South Bank",
+      "featured": true
+    },
+    {
       "image": "/images/L1008072.jpg",
       "caption": "Jousting",
       "featured": false
+    },
+    {
+      "image": "/images/0002919-R1-20-19.jpg",
+      "caption": "Bermondsey street",
+      "featured": true
     }
   ]
 }
