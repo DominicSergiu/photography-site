@@ -227,6 +227,21 @@
       "image": "/images/0002919-R1-20-19.jpg",
       "caption": "Bermondsey street",
       "featured": true
+    },
+    {
+      "image": "/images/0002917-R1-31-31A.jpg",
+      "caption": "Spitafields",
+      "featured": false
+    },
+    {
+      "image": "/images/0002921-R1-03-2.jpg",
+      "caption": "Eltham Palace",
+      "featured": false
+    },
+    {
+      "image": "/images/0002918-R1-36-36.jpg",
+      "caption": "Spitalfields",
+      "featured": false
     }
   ]
 }
