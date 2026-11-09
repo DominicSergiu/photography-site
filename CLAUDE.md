@@ -60,17 +60,23 @@ file collection. `index.html` fetches it at load and falls back to the hardcoded
 
 ## Navigation, routes & lightbox
 
-- **Nav is `Work` + `About`.** Hovering/focusing `Work` opens a preview panel:
-  one column per project (title + a small thumbnail **carousel** with prev/next
-  arrows). Clicking `Work` goes to the home view-all wall.
-- **Mobile (≤600px):** the header nav is hidden; "Menu" opens `#mmenu`, a
-  full-screen white sheet (opacity fade, scroll locked, focus trapped) listing
-  Home / each project / About, with Email + Instagram at the bottom. Its top
-  row mirrors the header so "Close" sits where "Menu" was. The current page is
-  in ink, the rest muted. Built in `buildNav()`; desktop is unaffected.
+- **Header is `Dominic Lucaciu` · series tabs · `About`.** The tabs replaced the
+  old `Work` menu: `Selected` (the featured home wall, `#/`) plus one tab per
+  series with its photo count, built in `buildNav()` from the series files. They
+  are a frosted pill bar (`.tabs`, `position: sticky`) pulled up into the header
+  row and centred, and they stay pinned at that height while the grid scrolls
+  under them. At ≤720px they drop to their own row under the header; at ≤600px
+  the counts are hidden. Hidden on About.
+- **Grid caption tags:** hovering a photo (pointer devices only) or focusing it
+  shows its caption in a frosted pill (`.chip`); the lightbox caption and Close
+  are matching pills.
+- **Mobile has no menu.** The header is the same as desktop (`Dominic Lucaciu`
+  left, `About` right) and the tabs sit in their own row below it; Email and
+  Instagram live in the footer. (A full-screen "Menu" sheet existed before the
+  tabs and was removed because it only repeated them.)
 - **Routes** (hash-based): `#/` home wall · `#/project/<slug>` a project grid ·
-  `#/about`. On a project page the header logo becomes a back arrow + the project
-  title.
+  `#/about`. The header always reads `Dominic Lucaciu`; the active tab shows
+  which series you're on.
 - **Lightbox operates on a "sequence"** (`{src, cap, key, title}[]`), not on a
   single folder. Clicking a photo on the **home** wall flips through the whole
   interleaved featured sequence; clicking inside a **project** flips through that
@@ -108,10 +114,9 @@ Arrived at over a lot of iteration:
 - **Motion is opacity-only**, 180–300ms, on `cubic-bezier(0.4, 0, 0.2, 1)`
   (`--ease`). No scaling, no sliding, no scroll-triggered reveals. The lightbox
   crossfades between two stacked `<img>` layers so there is never a blank frame.
-  - **Deliberate exceptions (leave them — both explicitly requested):** the
-    Work-menu thumbnail carousel slides horizontally (`translateX`, 260ms; can be
-    a crossfade instead); and the mobile lightbox has **pinch / double-tap / pan
-    zoom** (`transform: scale` on `.stage`), which is user-driven, not decorative.
+  - **Deliberate exception (leave it — explicitly requested):** the mobile
+    lightbox has **pinch / double-tap / pan zoom** (`transform: scale` on
+    `.stage`), which is user-driven, not decorative.
   - **Loading state:** image placeholders softly pulse between two greys
     (`.pulsing`, a `background-color` keyframe — no movement) until the photo
     loads, then the photo fades in over them. Disabled under reduced motion.
