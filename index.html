@@ -35,7 +35,9 @@
     --ease:cubic-bezier(0.4,0,0.2,1);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{height:100%;}
+  /* Only html is pinned to the window height; body must be free to grow with the
+     page, or the sticky tabs (whose containing block is body) scroll away after one screen. */
+  html{height:100%;}
   body{
     background:var(--bg);
     color:var(--ink);
