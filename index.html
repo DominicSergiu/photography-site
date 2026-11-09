@@ -112,6 +112,33 @@
   .wp-carousel:hover .wp-arrow.disabled,
   .wp-arrow.disabled{opacity:0;pointer-events:none;}
 
+  /* Series tabs: a frosted bar that sticks to the top while the grid scrolls under it */
+  .tabs{
+    position:sticky;top:var(--pad);z-index:15;
+    display:flex;justify-content:center;
+    padding:0 var(--pad);margin-bottom:12px;
+    pointer-events:none;flex:none;
+  }
+  .tabs[hidden]{display:none;}
+  .tabs-inner{
+    pointer-events:auto;
+    display:flex;gap:2px;padding:3px;border-radius:11px;
+    background:rgba(236,236,236,0.62);
+    -webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.35);
+  }
+  .tab{
+    display:flex;align-items:center;gap:24px;
+    padding:4px 12px;border-radius:8px;
+    color:var(--ink);white-space:nowrap;
+    transition:background-color .18s var(--ease);
+  }
+  .tab .n{color:#6b6b6b;font-variant-numeric:tabular-nums;}
+  .tab:hover{background:rgba(255,255,255,0.45);}
+  .tab.active{background:rgba(255,255,255,0.92);}
+  .tab:focus{outline:none;}
+  .tab:focus-visible{outline:2px solid var(--ink);outline-offset:1px;}
+
   main{flex:1 0 auto;}
 
   .view{opacity:0;transition:opacity .22s var(--ease);}
@@ -136,14 +163,20 @@
   .grid img{width:100%;height:auto;display:block;opacity:0;transition:opacity .3s var(--ease);}
   .grid img.loaded{opacity:1;}
   .grid figure:hover img.loaded{opacity:0.88;}
+  /* Frosted caption tag, shown on hover (pointer devices) or keyboard focus */
   .grid .chip{
     position:absolute;left:10px;bottom:10px;right:10px;
-    max-width:60%;width:max-content;
-    background:#fff;color:var(--ink);
-    font-size:14px;line-height:20px;padding:5px 9px;border-radius:8px;
+    max-width:70%;width:max-content;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    background:rgba(255,255,255,0.6);color:var(--ink);
+    -webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.35);
+    font-size:14px;line-height:20px;padding:5px 10px;border-radius:8px;
     opacity:0;transition:opacity .18s var(--ease);
+    pointer-events:none;
   }
-  .grid figure:hover .chip{opacity:1;}
+  @media(hover:hover){ .grid figure:hover .chip{opacity:1;} }
+  .grid figure:focus-visible .chip{opacity:1;}
 
   .about{display:flex;gap:48px;align-items:flex-start;padding:4vh var(--pad) 12vh;}
   .about-text{flex:1;min-width:0;}
@@ -169,12 +202,19 @@
     transition:opacity .22s var(--ease), visibility 0s linear .22s;
   }
   .lightbox.open{opacity:1;visibility:visible;transition:opacity .22s var(--ease), visibility 0s;}
-  /* Fixed two-line height so a wrapping caption never moves or resizes the photo */
-  .lightbox-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:var(--pad);flex:none;height:calc(var(--pad) * 2 + 48px);}
-  .lightbox-bar .cap{color:var(--muted);min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;}
+  /* Fixed two-line height so a wrapping caption never moves or resizes the photo.
+     Caption and Close sit in pills, matching the grid's caption tags. */
+  .lightbox-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:var(--pad);flex:none;height:calc(var(--pad) * 2 + 56px);}
+  .lightbox-bar .cap{
+    color:var(--muted);min-width:0;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+    background:#f2f2f2;border-radius:8px;padding:4px 12px;
+  }
+  .lightbox-bar .cap:empty{display:none;}
   .lightbox-bar .cap .lb-project{color:var(--ink);cursor:pointer;transition:opacity .18s var(--ease);}
   .lightbox-bar .cap .lb-project:hover{opacity:0.55;}
-  .lightbox-bar .close{background:none;border:none;cursor:pointer;color:var(--ink);flex:none;}
+  .lightbox-bar .close{background:#f2f2f2;border:none;border-radius:8px;padding:4px 12px;cursor:pointer;color:var(--ink);flex:none;line-height:24px;transition:background .18s var(--ease);}
+  .lightbox-bar .close:hover{background:#e6e6e6;}
   .lightbox-main{flex:1;min-height:0;display:flex;align-items:center;gap:4px;padding:0 var(--pad);overflow:hidden;touch-action:none;}
   .lightbox-main .navbtn{
     flex:none;background:#f2f2f2;border:none;border-radius:8px;cursor:pointer;color:var(--ink);padding:6px;
@@ -236,6 +276,9 @@
     .mm-foot{display:flex;justify-content:space-between;padding:24px var(--pad) 28px;color:var(--muted);flex:none;}
     .lightbox-main{flex-direction:column;align-items:stretch;}
     .lightbox-main .navbtn{display:none;}
+    /* Three tabs fit a phone once the counts are dropped */
+    .tab{padding:4px 10px;}
+    .tab .n{display:none;}
   }
 </style>
 </head>
@@ -258,6 +301,8 @@
     <a href="https://www.instagram.com/dominic_lucaciu/" target="_blank" rel="noopener">Instagram</a>
   </div>
 </div>
+
+<div class="tabs" id="tabs" hidden><nav class="tabs-inner" id="tabsInner" aria-label="Series"></nav></div>
 
 <main id="app"></main>
 
@@ -441,6 +486,13 @@ function buildNav(){
     </div>
     <a href="#/about">About</a>`;
 
+  // Series tabs: Selected (the featured wall) plus one tab per series, with counts.
+  const tab = (route, label, n) =>
+    `<a class="tab" href="${route}" data-route="${route}"><span>${esc(label)}</span><span class="n">${n}</span></a>`;
+  document.getElementById('tabsInner').innerHTML =
+    tab('#/', 'Selected', featuredPhotos().length)
+    + ORDER.map(key => tab(`#/project/${key}`, FOLDERS[key].title, FOLDERS[key].photos.length)).join('');
+
   mmList.innerHTML = `<a href="#/" data-route="#/">Home</a>`
     + ORDER.map(key => `<a href="#/project/${key}" data-route="#/project/${key}">${esc(FOLDERS[key].title)}</a>`).join('')
     + `<a href="#/about" data-route="#/about" class="mm-sep">About</a>`;
@@ -524,7 +576,7 @@ function homeView(){
       ${items.map(({key, p}, pos) => `
         <figure data-list="home" data-index="${pos}" style="aspect-ratio:${ratioOf(p.src)}">
           <img src="${p.src}" alt="${esc(p.cap)}" ${sizeAttrs(p.src)} ${loadAttrs(pos)}>
-          <span class="chip">${esc(FOLDERS[key].title)}</span>
+          <span class="chip">${esc(p.cap || FOLDERS[key].title)}</span>
         </figure>`).join('')}
     </div>`;
 }
@@ -648,6 +700,16 @@ function render(){
   } else {
     html = homeView();
   }
+
+  // Tabs show on the photo walls (home + each series), not on About.
+  const tabsEl = document.getElementById('tabs');
+  const tabRoute = projectMatch ? (FOLDERS[projectMatch[1]] ? hash : null) : (hash === '#/about' ? null : '#/');
+  tabsEl.hidden = !tabRoute;
+  tabsEl.querySelectorAll('.tab').forEach(a => {
+    const on = a.dataset.route === tabRoute;
+    a.classList.toggle('active', on);
+    on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
+  });
 
   const paint = () => {
     app.innerHTML = `<div class="view">${html}</div>`;
